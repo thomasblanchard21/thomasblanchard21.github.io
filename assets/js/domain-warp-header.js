@@ -37,7 +37,9 @@
 // Tweakable look. World units: `referenceHeight` CSS px span `scale` units.
 const CONFIG = {
     scale: 0.8,             // zoom: larger = more, smaller features
-    referenceHeight: 300,   // CSS px, so the feature size doesn't depend on the viewport
+    referenceHeight: 300,   // CSS px, so the feature size doesn't depend on the viewport...
+    narrowWidth: 800,       // ...except below this window width (CSS px), where the features
+    narrowMinSize: 0.55,    // shrink with it, down to this fraction of their size
     warp: 1.0,              // domain warp strength (k above)
     contrast: 2.3,          // spread of the raw fBm height around 0.5
     flowSpeed: 0.03,        // animation speed (world units per second, roughly)
@@ -581,6 +583,11 @@ function mount(canvas, toggle) {
     const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, relief: [0, 1], scroll: 0 };
     let stillFrame = 0;
 
+    // Feature size relative to wide screens: smaller on narrow ones.
+    function patternSize(width) {
+        return Math.min(1, Math.max(CONFIG.narrowMinSize, width / CONFIG.narrowWidth));
+    }
+
     function canvasSize() {
         const rect = canvas.getBoundingClientRect();
         const dpr = Math.min(window.devicePixelRatio || 1, CONFIG.maxDpr);
@@ -594,7 +601,7 @@ function mount(canvas, toggle) {
         return [
             Math.max(1, Math.round(rect.width * scale)),
             Math.max(1, Math.round(rect.height * scale)),
-            CONFIG.scale * rect.height / CONFIG.referenceHeight,
+            CONFIG.scale * rect.height / (CONFIG.referenceHeight * patternSize(rect.width)),
         ];
     }
 
