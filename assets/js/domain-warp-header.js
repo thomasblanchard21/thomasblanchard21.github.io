@@ -75,6 +75,7 @@ const CONFIG = {
     floorLevel: 0.05,       // height of the floors (height range is 0..1)
     floorMargin: 60,        // CSS px around a section over which the relief eases down to it
     floorRadius: 16,        // CSS px, corner radius of the floors
+    floorWave: 50,          // CSS px, how far the edge of the floors wanders in and out with the relief
     // Performance
     maxDpr: 2,              // device pixel ratio cap
     renderScale: 0.75,      // internal resolution relative to CSS px * DPR
@@ -161,6 +162,7 @@ uniform vec4 uFloors[2]; // section floors in world units (no seed): xy min corn
 uniform float uFloorRadius;
 uniform float uFloorMargin;
 uniform float uFloorLevel;
+uniform float uFloorWave;
 
 // Gradient noise with a cheap arithmetic hash.
 vec2 grad(vec2 c) {
@@ -228,7 +230,9 @@ void main() {
     float dip = uMouse.z * exp(-dot(dm, dm));
 
     // Sections: flat floors, without the dip, with the relief easing down around them.
+    // The edge wanders with the warp field, so it follows the flow of the relief.
     float d = min(roundedRect(pv, uFloors[0], uFloorRadius), roundedRect(pv, uFloors[1], uFloorRadius));
+    d += uFloorWave * r.x;
     float sink = 1.0 - smoothstep(0.0, uFloorMargin, d);
 
     float h = 0.5 + uContrast * f - uHoverDepth * dip * (1.0 - sink);
@@ -480,6 +484,7 @@ function createRenderer(canvas) {
         gl.uniform1f(u.uFloorRadius, floors.radius * worldH);
         gl.uniform1f(u.uFloorMargin, floors.margin * worldH);
         gl.uniform1f(u.uFloorLevel, CONFIG.floorLevel);
+        gl.uniform1f(u.uFloorWave, floors.wave * worldH);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
         // Pass 2: shading to the canvas.
@@ -560,7 +565,7 @@ function mount(canvas, toggle) {
     // units as the cursor: min x, min y, max x, max y each. Unused slots sit
     // far off-screen.
     const panels = Array.from(document.querySelectorAll(".content > section.panel"));
-    const floors = { rects: new Float32Array(8), radius: 0, margin: 0 };
+    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0 };
     let stillFrame = 0;
 
     function canvasSize() {
@@ -588,7 +593,8 @@ function mount(canvas, toggle) {
         let slot = 0;
         for (const panel of panels) {
             const r = panel.getBoundingClientRect();
-            if (slot < 2 && r.bottom > rect.top - CONFIG.floorMargin && r.top < rect.bottom + CONFIG.floorMargin) {
+            const reach = CONFIG.floorMargin + CONFIG.floorWave;
+            if (slot < 2 && r.bottom > rect.top - reach && r.top < rect.bottom + reach) {
                 next.set([
                     (r.left - rect.left) / unit,
                     (rect.bottom - r.bottom) / unit,
@@ -600,6 +606,7 @@ function mount(canvas, toggle) {
         }
         floors.radius = CONFIG.floorRadius / unit;
         floors.margin = CONFIG.floorMargin / unit;
+        floors.wave = CONFIG.floorWave / unit;
         const moved = next.some((v, i) => v !== floors.rects[i]);
         floors.rects = next;
         return moved;
