@@ -73,7 +73,9 @@ const CONFIG = {
     hoverFollow: 8.0,       // how fast the dip follows the cursor (per second)
     hoverFade: 4.0,         // how fast the dip appears/disappears (per second)
     // Sunken floors under the sections (.content > section.panel)
-    floorLevel: 0.05,       // height of the floors (height range is 0..1)
+    floorLevel: 0.05,       // height of the floors (height range is 0..1)...
+    floorLevelNarrow: 0.3,  // ...raised up to this as the margin shrinks to floorMarginMin, so a
+                            // narrow edge has fewer, softer steps
     floorMargin: 60,        // CSS px around a section over which the relief eases down to it...
     floorMarginShare: 0.45, // ...at most this share of the gap beside the section (narrow screens),
     floorMarginMin: 14,     // ...and at least this (CSS px)
@@ -490,7 +492,7 @@ function createRenderer(canvas) {
         gl.uniform4fv(u["uFloors[0]"], floors.rects.map((v) => v * worldH));
         gl.uniform1f(u.uFloorRadius, floors.radius * worldH);
         gl.uniform1f(u.uFloorMargin, floors.margin * worldH);
-        gl.uniform1f(u.uFloorLevel, CONFIG.floorLevel);
+        gl.uniform1f(u.uFloorLevel, floors.level);
         gl.uniform1f(u.uFloorWave, floors.wave * worldH);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
@@ -573,7 +575,7 @@ function mount(canvas, toggle) {
     // far off-screen.
     const panels = Array.from(document.querySelectorAll(".content > section.panel"));
     // Also the page scroll, which moves the relief along with the floors.
-    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, scroll: 0 };
+    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, level: CONFIG.floorLevel, scroll: 0 };
     let stillFrame = 0;
 
     function canvasSize() {
@@ -620,6 +622,8 @@ function mount(canvas, toggle) {
         const margin = Math.max(CONFIG.floorMarginMin, Math.min(CONFIG.floorMargin, CONFIG.floorMarginShare * gap));
         floors.margin = margin / unit;
         floors.wave = CONFIG.floorWave * (margin / CONFIG.floorMargin) / unit;
+        const wide = (margin - CONFIG.floorMarginMin) / (CONFIG.floorMargin - CONFIG.floorMarginMin);
+        floors.level = CONFIG.floorLevelNarrow + (CONFIG.floorLevel - CONFIG.floorLevelNarrow) * wide;
         const scroll = window.scrollY / unit;
         const moved = scroll !== floors.scroll || next.some((v, i) => v !== floors.rects[i]);
         floors.rects = next;
