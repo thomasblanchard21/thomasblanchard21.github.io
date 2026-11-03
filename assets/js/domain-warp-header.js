@@ -11,7 +11,8 @@
  *      https://iquilezles.org/articles/warp/), rendered into an RGBA8 texture
  *      with the height packed into two channels (16-bit precision). The
  *      texture has a margin around the visible area so shadows near the edges
- *      can still find their occluders.
+ *      can still find their occluders. The canvas stays fixed, but the pattern
+ *      is shifted by the page scroll, so the relief scrolls with the page.
  *      The mouse presses a smooth dip into the height there, so the
  *      layers around the cursor step down.
  *      Each section of the page sits on a flat floor sunk into the relief:
@@ -155,6 +156,7 @@ uniform float uWarp;
 uniform float uContrast;
 uniform float uTime;
 uniform vec2 uSeed;
+uniform float uScroll;   // page scroll, in world units
 uniform vec3 uMouse;     // xy: cursor in world units (no seed), z: dip strength 0..1
 uniform float uHoverRadius;
 uniform float uHoverDepth;
@@ -217,7 +219,7 @@ float fbmLow(vec2 p) {
 
 void main() {
     vec2 pv = (gl_FragCoord.xy - uPad) / uViewH * uScale;
-    vec2 p = pv + uSeed;
+    vec2 p = pv + uSeed - vec2(0.0, uScroll);
     float t = uTime;
 
     vec2 q = vec2(fbmLow(p + vec2(0.0, 0.0) + t * vec2(0.6, 0.2)),
@@ -461,7 +463,8 @@ function createRenderer(canvas) {
         }
     }
 
-    // mouse, floors: in canvas-height units, origin bottom-left (see mount).
+    // mouse, floors: in canvas-height units, origin bottom-left (see mount);
+    // floors.scroll: page scroll, in the same units.
     function render(time, mouse, floors) {
         const texel = worldH / height;
 
@@ -477,6 +480,7 @@ function createRenderer(canvas) {
         gl.uniform1f(u.uContrast, CONFIG.contrast);
         gl.uniform1f(u.uTime, time * CONFIG.flowSpeed);
         gl.uniform2f(u.uSeed, SEED[0], SEED[1]);
+        gl.uniform1f(u.uScroll, floors.scroll * worldH);
         gl.uniform3f(u.uMouse, mouse.x * worldH, mouse.y * worldH, mouse.strength);
         gl.uniform1f(u.uHoverRadius, CONFIG.hoverRadius);
         gl.uniform1f(u.uHoverDepth, CONFIG.hoverDepth);
@@ -565,7 +569,8 @@ function mount(canvas, toggle) {
     // units as the cursor: min x, min y, max x, max y each. Unused slots sit
     // far off-screen.
     const panels = Array.from(document.querySelectorAll(".content > section.panel"));
-    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0 };
+    // Also the page scroll, which moves the relief along with the floors.
+    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, scroll: 0 };
     let stillFrame = 0;
 
     function canvasSize() {
@@ -585,7 +590,7 @@ function mount(canvas, toggle) {
         ];
     }
 
-    // Reads where the sections are; returns whether the floors moved.
+    // Reads where the sections are and the page scroll; returns whether either moved.
     function updateFloors() {
         const rect = canvas.getBoundingClientRect();
         const unit = rect.height || 1;
@@ -607,8 +612,10 @@ function mount(canvas, toggle) {
         floors.radius = CONFIG.floorRadius / unit;
         floors.margin = CONFIG.floorMargin / unit;
         floors.wave = CONFIG.floorWave / unit;
-        const moved = next.some((v, i) => v !== floors.rects[i]);
+        const scroll = window.scrollY / unit;
+        const moved = scroll !== floors.scroll || next.some((v, i) => v !== floors.rects[i]);
         floors.rects = next;
+        floors.scroll = scroll;
         return moved;
     }
 
@@ -688,7 +695,7 @@ function mount(canvas, toggle) {
             return;
         }
         const interval = now - lastDraw;
-        // While the page scrolls, every frame, so the floors stay under the text.
+        // While the page scrolls, every frame, so the relief and floors move with the text.
         const moved = updateFloors();
         if (moved || interval >= 1000 / PERF.maxFps - 2) {
             lastDraw = now;
@@ -818,7 +825,7 @@ function mount(canvas, toggle) {
         pointer.inside = false;
     };
 
-    // Still frame: redrawn as the page scrolls, for the floors to follow.
+    // Still frame: redrawn as the page scrolls, for the relief and floors to follow.
     const onScroll = () => {
         if (!renderer || frame || stillFrame || !isFrozen()) {
             return;
