@@ -77,16 +77,16 @@ html {
         }
     }
     .panel {
-        margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-bottom-small;
+        margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
         padding: 10px $content-padding-small;
-        scroll-margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-bottom-small;
+        scroll-margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
         &:first-child {
             margin-top: $section-spacing-small;
             scroll-margin-top: $banner-height-small + $section-spacing-small;
         }
         &:last-child {
-            margin-bottom: calc(#{$section-spacing-bottom-small} + var(--footer-height, #{$footer-height-small}));
-            scroll-margin-bottom: calc(#{$section-spacing-bottom-small} + var(--footer-height, #{$footer-height-small}));
+            margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
+            scroll-margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
         }
     }
 }

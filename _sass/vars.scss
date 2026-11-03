@@ -48,11 +48,10 @@ $section-dots-offset: 12px;   // gap between the dots and the window edge
 $section-dots-offset-small: 2px;
 // Gap around the section panels (one per screen, see _sass/panels.scss)
 $section-spacing: 40px;
-$section-spacing-small: 24px;
+$section-spacing-small: 48px; // phone width: like the side gap below, so the relief shows between panels
 // Phone width: gap between the panels and the sides of the window, wide
 // enough for some of the relief to show beside them
 $panel-side-gap-small: 48px;
-$section-spacing-bottom-small: 48px; // below each panel, likewise
 
 /*
  * Build Variables, don't touch
