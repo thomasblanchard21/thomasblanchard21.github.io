@@ -77,6 +77,9 @@ const CONFIG = {
     floorMargin: 60,        // CSS px around a section over which the relief eases down to it...
     floorMarginShare: 0.45, // ...at most this share of the gap beside the section (narrow screens),
     floorMarginMin: 14,     // ...and at least this (CSS px)
+    reliefMaxNarrow: 0.5,   // as the margin shrinks to floorMarginMin, the landscape is squeezed
+                            // between floorLevel and this, so the drop into the floors is smaller
+                            // and they stay the lowest level
     floorRadius: 16,        // CSS px, corner radius of the floors
     floorWave: 50,          // CSS px, how far the edge of the floors wanders in and out with the
                             // relief, scaled down along with the margin
@@ -168,6 +171,7 @@ uniform float uFloorRadius;
 uniform float uFloorMargin;
 uniform float uFloorLevel;
 uniform float uFloorWave;
+uniform vec2 uRelief;    // height range of the landscape: min, max
 
 // Gradient noise with a cheap arithmetic hash.
 vec2 grad(vec2 c) {
@@ -240,8 +244,8 @@ void main() {
     d += uFloorWave * r.x;
     float sink = 1.0 - smoothstep(0.0, uFloorMargin, d);
 
-    float h = 0.5 + uContrast * f - uHoverDepth * dip * (1.0 - sink);
-    h = clamp(mix(h, uFloorLevel, sink), 0.0, 0.9999);
+    float h = mix(uRelief.x, uRelief.y, 0.5 + uContrast * f) - uHoverDepth * dip * (1.0 - sink);
+    h = clamp(mix(h, uFloorLevel, sink), uRelief.x, min(uRelief.y, 0.9999));
     float hi = floor(h * 255.0);
     float lo = h * 255.0 - hi;
     gl_FragColor = vec4(hi / 255.0, lo, 0.0, 1.0);
@@ -492,6 +496,7 @@ function createRenderer(canvas) {
         gl.uniform1f(u.uFloorMargin, floors.margin * worldH);
         gl.uniform1f(u.uFloorLevel, CONFIG.floorLevel);
         gl.uniform1f(u.uFloorWave, floors.wave * worldH);
+        gl.uniform2f(u.uRelief, floors.relief[0], floors.relief[1]);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
         // Pass 2: shading to the canvas.
@@ -573,7 +578,7 @@ function mount(canvas, toggle) {
     // far off-screen.
     const panels = Array.from(document.querySelectorAll(".content > section.panel"));
     // Also the page scroll, which moves the relief along with the floors.
-    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, scroll: 0 };
+    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, relief: [0, 1], scroll: 0 };
     let stillFrame = 0;
 
     function canvasSize() {
@@ -620,6 +625,9 @@ function mount(canvas, toggle) {
         const margin = Math.max(CONFIG.floorMarginMin, Math.min(CONFIG.floorMargin, CONFIG.floorMarginShare * gap));
         floors.margin = margin / unit;
         floors.wave = CONFIG.floorWave * (margin / CONFIG.floorMargin) / unit;
+        // ...and a lower landscape, from its full range (0..1) on wide screens.
+        const narrow = (CONFIG.floorMargin - margin) / (CONFIG.floorMargin - CONFIG.floorMarginMin);
+        floors.relief = [CONFIG.floorLevel * narrow, 1 + (CONFIG.reliefMaxNarrow - 1) * narrow];
         const scroll = window.scrollY / unit;
         const moved = scroll !== floors.scroll || next.some((v, i) => v !== floors.rects[i]);
         floors.rects = next;
