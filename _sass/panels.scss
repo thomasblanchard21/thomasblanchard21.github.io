@@ -72,6 +72,9 @@ html {
         grid-template-rows: minmax(calc(100vh - #{$banner-height-small}), auto);
         grid-template-rows: minmax(calc(100svh - #{$banner-height-small}), auto);
         margin-bottom: calc(-1 * var(--footer-height, #{$footer-height-small}));
+        &.container {
+            max-width: calc(100% - #{2 * $panel-side-gap-small});
+        }
     }
     .panel {
         margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;

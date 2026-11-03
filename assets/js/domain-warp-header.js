@@ -74,9 +74,12 @@ const CONFIG = {
     hoverFade: 4.0,         // how fast the dip appears/disappears (per second)
     // Sunken floors under the sections (.content > section.panel)
     floorLevel: 0.05,       // height of the floors (height range is 0..1)
-    floorMargin: 60,        // CSS px around a section over which the relief eases down to it
+    floorMargin: 60,        // CSS px around a section over which the relief eases down to it...
+    floorMarginShare: 0.45, // ...at most this share of the gap beside the section (narrow screens),
+    floorMarginMin: 14,     // ...and at least this (CSS px)
     floorRadius: 16,        // CSS px, corner radius of the floors
-    floorWave: 50,          // CSS px, how far the edge of the floors wanders in and out with the relief
+    floorWave: 50,          // CSS px, how far the edge of the floors wanders in and out with the
+                            // relief, scaled down along with the margin
     // Performance
     maxDpr: 2,              // device pixel ratio cap
     renderScale: 0.75,      // internal resolution relative to CSS px * DPR
@@ -596,10 +599,13 @@ function mount(canvas, toggle) {
         const unit = rect.height || 1;
         const next = new Float32Array(8).fill(-100);
         let slot = 0;
+        // Gap between the sections and the sides of the window.
+        let gap = Infinity;
         for (const panel of panels) {
             const r = panel.getBoundingClientRect();
             const reach = CONFIG.floorMargin + CONFIG.floorWave;
             if (slot < 2 && r.bottom > rect.top - reach && r.top < rect.bottom + reach) {
+                gap = Math.min(gap, r.left - rect.left, rect.right - r.right);
                 next.set([
                     (r.left - rect.left) / unit,
                     (rect.bottom - r.bottom) / unit,
@@ -610,8 +616,10 @@ function mount(canvas, toggle) {
             }
         }
         floors.radius = CONFIG.floorRadius / unit;
-        floors.margin = CONFIG.floorMargin / unit;
-        floors.wave = CONFIG.floorWave / unit;
+        // Narrow screens: a slimmer edge, so the relief beside it still shows.
+        const margin = Math.max(CONFIG.floorMarginMin, Math.min(CONFIG.floorMargin, CONFIG.floorMarginShare * gap));
+        floors.margin = margin / unit;
+        floors.wave = CONFIG.floorWave * (margin / CONFIG.floorMargin) / unit;
         const scroll = window.scrollY / unit;
         const moved = scroll !== floors.scroll || next.some((v, i) => v !== floors.rects[i]);
         floors.rects = next;
