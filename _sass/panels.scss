@@ -3,9 +3,12 @@
 /*
  * Section panels
  *
- * Each section of index.md is wrapped in a <section class="panel">: a frosted
- * glass card that blurs the relief behind it so the text stays readable.
- * Browsers without backdrop-filter get a more opaque panel instead.
+ * Each section of index.md is wrapped in a <section class="panel">. Over the
+ * relief, it has no card of its own: assets/js/domain-warp-header.js sinks a
+ * flat floor into the relief under it, which keeps the text readable. Until the
+ * relief is drawn (and without JS or WebGL), the panel is a frosted glass card
+ * that blurs the background behind it; browsers without backdrop-filter get a
+ * more opaque card instead.
  *
  * One section per screen: each panel is centered in a grid row at least as
  * tall as the window, and the page snaps from one row to the next when
@@ -39,6 +42,11 @@ html {
     border: 1px solid $panel-border;
     border-radius: $panel-radius;
     box-shadow: $panel-shadow;
+    // Fades out as the relief fades in (see banner.scss).
+    transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
     scroll-snap-align: center;
     scroll-margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     &:first-child {
@@ -78,4 +86,13 @@ html {
             scroll-margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
         }
     }
+}
+
+// Relief drawn: the section sits on its sunken floor, without the card.
+.relief-canvas.is-ready ~ .wrapper .panel {
+    background-color: transparent;
+    border-color: transparent;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
 }

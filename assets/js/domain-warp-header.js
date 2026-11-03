@@ -14,6 +14,10 @@
  *      can still find their occluders.
  *      The mouse presses a smooth dip into the height there, so the
  *      layers around the cursor step down.
+ *      Each section of the page sits on a flat floor sunk into the relief:
+ *      inside a rounded rectangle following the section (passed in every
+ *      frame, as it scrolls), the height is a constant low level, and around
+ *      it the relief eases down to it, so the layers step down into the basin.
  *   2. Shade pass: the height is softly terraced into rounded layers, normals
  *      come from finite differences, a short march toward the light gives soft
  *      shadows, and a ring of samples gives a cavity/occlusion term.
@@ -67,6 +71,10 @@ const CONFIG = {
     hoverDepth: 0.45,       // how far the height drops at the centre (height range is 0..1)
     hoverFollow: 8.0,       // how fast the dip follows the cursor (per second)
     hoverFade: 4.0,         // how fast the dip appears/disappears (per second)
+    // Sunken floors under the sections (.content > section.panel)
+    floorLevel: 0.05,       // height of the floors (height range is 0..1)
+    floorMargin: 60,        // CSS px around a section over which the relief eases down to it
+    floorRadius: 16,        // CSS px, corner radius of the floors
     // Performance
     maxDpr: 2,              // device pixel ratio cap
     renderScale: 0.75,      // internal resolution relative to CSS px * DPR
@@ -149,6 +157,10 @@ uniform vec2 uSeed;
 uniform vec3 uMouse;     // xy: cursor in world units (no seed), z: dip strength 0..1
 uniform float uHoverRadius;
 uniform float uHoverDepth;
+uniform vec4 uFloors[2]; // section floors in world units (no seed): xy min corner, zw max corner
+uniform float uFloorRadius;
+uniform float uFloorMargin;
+uniform float uFloorLevel;
 
 // Gradient noise with a cheap arithmetic hash.
 vec2 grad(vec2 c) {
@@ -170,6 +182,12 @@ float noise(vec2 p) {
 }
 
 const mat2 ROT = mat2(1.6, 1.2, -1.2, 1.6); // rotate ~37 deg, scale 2
+
+// Signed distance to a rounded rectangle (negative inside).
+float roundedRect(vec2 p, vec4 r, float radius) {
+    vec2 q = abs(p - 0.5 * (r.xy + r.zw)) - 0.5 * (r.zw - r.xy) + radius;
+    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+}
 
 // Final layer: a few octaves with a low gain keeps the contours smooth.
 float fbm(vec2 p) {
@@ -209,7 +227,12 @@ void main() {
     vec2 dm = (pv - uMouse.xy) / uHoverRadius;
     float dip = uMouse.z * exp(-dot(dm, dm));
 
-    float h = clamp(0.5 + uContrast * f - uHoverDepth * dip, 0.0, 0.9999);
+    // Sections: flat floors, without the dip, with the relief easing down around them.
+    float d = min(roundedRect(pv, uFloors[0], uFloorRadius), roundedRect(pv, uFloors[1], uFloorRadius));
+    float sink = 1.0 - smoothstep(0.0, uFloorMargin, d);
+
+    float h = 0.5 + uContrast * f - uHoverDepth * dip * (1.0 - sink);
+    h = clamp(mix(h, uFloorLevel, sink), 0.0, 0.9999);
     float hi = floor(h * 255.0);
     float lo = h * 255.0 - hi;
     gl_FragColor = vec4(hi / 255.0, lo, 0.0, 1.0);
@@ -434,7 +457,8 @@ function createRenderer(canvas) {
         }
     }
 
-    function render(time, mouse) {
+    // mouse, floors: in canvas-height units, origin bottom-left (see mount).
+    function render(time, mouse, floors) {
         const texel = worldH / height;
 
         // Pass 1: heightfield into the texture (with margin).
@@ -452,6 +476,10 @@ function createRenderer(canvas) {
         gl.uniform3f(u.uMouse, mouse.x * worldH, mouse.y * worldH, mouse.strength);
         gl.uniform1f(u.uHoverRadius, CONFIG.hoverRadius);
         gl.uniform1f(u.uHoverDepth, CONFIG.hoverDepth);
+        gl.uniform4fv(u["uFloors[0]"], floors.rects.map((v) => v * worldH));
+        gl.uniform1f(u.uFloorRadius, floors.radius * worldH);
+        gl.uniform1f(u.uFloorMargin, floors.margin * worldH);
+        gl.uniform1f(u.uFloorLevel, CONFIG.floorLevel);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
         // Pass 2: shading to the canvas.
@@ -528,6 +556,12 @@ function mount(canvas, toggle) {
     const pointer = { x: 0, y: 0, inside: false };
     const mouse = { x: 0, y: 0, strength: 0 };
     let lastMouseUpdate = 0;
+    // Floors under the (at most two) sections near the window, in the same
+    // units as the cursor: min x, min y, max x, max y each. Unused slots sit
+    // far off-screen.
+    const panels = Array.from(document.querySelectorAll(".content > section.panel"));
+    const floors = { rects: new Float32Array(8), radius: 0, margin: 0 };
+    let stillFrame = 0;
 
     function canvasSize() {
         const rect = canvas.getBoundingClientRect();
@@ -546,6 +580,31 @@ function mount(canvas, toggle) {
         ];
     }
 
+    // Reads where the sections are; returns whether the floors moved.
+    function updateFloors() {
+        const rect = canvas.getBoundingClientRect();
+        const unit = rect.height || 1;
+        const next = new Float32Array(8).fill(-100);
+        let slot = 0;
+        for (const panel of panels) {
+            const r = panel.getBoundingClientRect();
+            if (slot < 2 && r.bottom > rect.top - CONFIG.floorMargin && r.top < rect.bottom + CONFIG.floorMargin) {
+                next.set([
+                    (r.left - rect.left) / unit,
+                    (rect.bottom - r.bottom) / unit,
+                    (r.right - rect.left) / unit,
+                    (rect.bottom - r.top) / unit,
+                ], 4 * slot);
+                slot++;
+            }
+        }
+        floors.radius = CONFIG.floorRadius / unit;
+        floors.margin = CONFIG.floorMargin / unit;
+        const moved = next.some((v, i) => v !== floors.rects[i]);
+        floors.rects = next;
+        return moved;
+    }
+
     function draw(now) {
         const [w, h, viewH] = canvasSize();
         if (w !== size[0] || h !== size[1] || viewH !== size[2]) {
@@ -554,7 +613,7 @@ function mount(canvas, toggle) {
         }
         const t = CONFIG.frozenTime + (reducedMotion.matches ? 0 : elapsed / 1000);
         updateMouse(now);
-        renderer.render(t, mouse);
+        renderer.render(t, mouse, floors);
         canvas.classList.add("is-ready");
     }
 
@@ -563,6 +622,7 @@ function mount(canvas, toggle) {
     function drawStill() {
         pointer.inside = false;
         mouse.strength = 0;
+        updateFloors();
         draw(performance.now());
     }
 
@@ -621,7 +681,9 @@ function mount(canvas, toggle) {
             return;
         }
         const interval = now - lastDraw;
-        if (interval >= 1000 / PERF.maxFps - 2) {
+        // While the page scrolls, every frame, so the floors stay under the text.
+        const moved = updateFloors();
+        if (moved || interval >= 1000 / PERF.maxFps - 2) {
             lastDraw = now;
             // A long gap (first frame, hiccup) neither moves the clock much nor counts as slow.
             if (interval < 250) {
@@ -749,6 +811,19 @@ function mount(canvas, toggle) {
         pointer.inside = false;
     };
 
+    // Still frame: redrawn as the page scrolls, for the floors to follow.
+    const onScroll = () => {
+        if (!renderer || frame || stillFrame || !isFrozen()) {
+            return;
+        }
+        stillFrame = requestAnimationFrame(() => {
+            stillFrame = 0;
+            if (renderer && !frame && isFrozen() && !document.hidden) {
+                drawStill();
+            }
+        });
+    };
+
     const onVisibility = () => update();
     const onMotionChange = () => {
         syncToggle();
@@ -779,6 +854,7 @@ function mount(canvas, toggle) {
     };
 
     document.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("scroll", onScroll, { passive: true });
     document.documentElement.addEventListener("pointerleave", onPointerLeave);
     document.addEventListener("visibilitychange", onVisibility);
     reducedMotion.addEventListener("change", onMotionChange);
@@ -792,9 +868,14 @@ function mount(canvas, toggle) {
 
     function teardown() {
         stop();
+        if (stillFrame) {
+            cancelAnimationFrame(stillFrame);
+            stillFrame = 0;
+        }
         io.disconnect();
         ro.disconnect();
         document.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("scroll", onScroll);
         document.documentElement.removeEventListener("pointerleave", onPointerLeave);
         document.removeEventListener("visibilitychange", onVisibility);
         reducedMotion.removeEventListener("change", onMotionChange);
