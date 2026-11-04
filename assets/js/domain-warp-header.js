@@ -46,7 +46,7 @@ const CONFIG = {
     terraces: 11.0,         // number of layers over the full height range
     terraceWidth: 0.58,     // width of the rounded step in each layer (0..1)
     terraceSlope: 0.35,     // how much of the raw slope survives on the plateaus
-    depth: 0.18,            // relief depth in world units (stronger shading/shadows)
+    depth: 0.12,            // relief depth in world units (stronger shading/shadows)
     lightAzimuth: 145,      // degrees, 0 = from the right, 90 = from the top
     lightElevation: 35,     // degrees above the horizon (low = raking light)
     shadowLength: 0.09,     // max shadow march distance in world units
