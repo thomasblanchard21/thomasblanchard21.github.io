@@ -15,8 +15,8 @@ $banner-background: white; // flat, covers the relief (which shows from the sect
 // JS/WebGL, and under the canvas while it loads
 $relief-fallback-light: #f3f2ef;
 $relief-fallback-dark: #d9d8d4;
-// Frosted glass panel behind each section of the page, over the relief
-// (see _sass/panels.scss)
+// Frosted glass card behind each section of the page, used only when the
+// relief can't run (no JS/WebGL, or it fails; see _sass/panels.scss)
 $panel-background: rgba(255, 255, 255, 0.6);
 $panel-background-opaque: rgba(255, 255, 255, 0.88); // without backdrop-filter
 $panel-border: rgba(255, 255, 255, 0.7);
@@ -58,5 +58,4 @@ $panel-side-gap-small: 48px;
  */
 
 $max-width: 900px;
-$med-width: 600px;
 $small-width: 480px;
