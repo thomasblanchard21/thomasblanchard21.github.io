@@ -644,7 +644,6 @@ function mount(canvas, toggle) {
         updateMouse(now);
         renderer.render(t, mouse, floors);
         canvas.classList.add("is-ready");
-        setFloors(true);
     }
 
     // Still frame (paused, too slow, or reduced motion): no hover dip, since
@@ -798,7 +797,6 @@ function mount(canvas, toggle) {
         syncToggle();
         if (!renderer) {
             canvas.classList.remove("is-ready");
-            setFloors(false);
             return;
         }
         update();
@@ -868,7 +866,6 @@ function mount(canvas, toggle) {
         }
         renderer = null;
         canvas.classList.remove("is-ready");
-        setFloors(false);
         syncToggle();
     };
     const onContextRestored = () => start();
@@ -920,23 +917,13 @@ function mount(canvas, toggle) {
             toggle.hidden = true;
         }
         canvas.classList.remove("is-ready");
-        setFloors(false);
     }
 
     start();
     return teardown;
 }
 
-// Whether the sections sit on floors in the relief or on cards (no WebGL, lost
-// context). The layout already sets it before the first paint when the relief
-// can run, so that the cards don't show while the relief loads.
-function setFloors(on) {
-    document.documentElement.classList.toggle("relief-floors", on);
-}
-
 const canvas = document.querySelector('canvas[data-effect="domain-warp"]');
 if (canvas && "IntersectionObserver" in window && "ResizeObserver" in window) {
     mount(canvas, document.querySelector(".relief-toggle"));
-} else {
-    setFloors(false);
 }

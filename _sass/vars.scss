@@ -15,14 +15,6 @@ $banner-background: white; // flat, covers the relief (which shows from the sect
 // JS/WebGL, and under the canvas while it loads
 $relief-fallback-light: #f3f2ef;
 $relief-fallback-dark: #d9d8d4;
-// Frosted glass card behind each section of the page, used only when the
-// relief can't run (no JS/WebGL, or it fails; see _sass/panels.scss)
-$panel-background: rgba(255, 255, 255, 0.6);
-$panel-background-opaque: rgba(255, 255, 255, 0.88); // without backdrop-filter
-$panel-border: rgba(255, 255, 255, 0.7);
-$panel-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
-$panel-blur: 12px;
-$panel-radius: 12px;
 $footer-background: white; // solid full-width band at the bottom of the page
 // Footer height before assets/js/section-scroll.js measures it (or without JS)
 $footer-height: 65px;

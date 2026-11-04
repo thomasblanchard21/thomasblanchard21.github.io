@@ -3,14 +3,10 @@
 /*
  * Section panels
  *
- * Each section of index.md is wrapped in a <section class="panel">. Over the
- * relief, it has no card of its own: assets/js/domain-warp-header.js sinks a
- * flat floor into the relief under it, which keeps the text readable. The
- * layout marks the page (.relief-floors) before the first paint when the relief
- * can run, so the card never shows while it loads. Without JS or WebGL (or if
- * the relief fails), the panel is a frosted glass card that blurs the
- * background behind it; browsers without backdrop-filter get a more opaque
- * card instead.
+ * Each section of index.md is wrapped in a <section class="panel">. It has no
+ * card of its own: assets/js/domain-warp-header.js sinks a flat floor into the
+ * relief under it, which keeps the text readable. Without the relief (no JS or
+ * WebGL), the text sits on the pale fallback background (see banner.scss).
  *
  * One section per screen: each panel is centered in a grid row at least as
  * tall as the window, and the page snaps from one row to the next when
@@ -40,15 +36,6 @@ html {
 .panel {
     margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     padding: 10px $content-padding;
-    background-color: $panel-background-opaque;
-    border: 1px solid $panel-border;
-    border-radius: $panel-radius;
-    box-shadow: $panel-shadow;
-    // Fades in if the relief fails after all.
-    transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.8s ease;
-    @media (prefers-reduced-motion: reduce) {
-        transition: none;
-    }
     scroll-snap-align: center;
     scroll-margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     &:first-child {
@@ -58,14 +45,6 @@ html {
     &:last-child {
         margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
         scroll-margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
-    }
-}
-
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .panel {
-        background-color: $panel-background;
-        -webkit-backdrop-filter: blur($panel-blur) saturate(1.2);
-        backdrop-filter: blur($panel-blur) saturate(1.2);
     }
 }
 
@@ -91,13 +70,4 @@ html {
             scroll-margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
         }
     }
-}
-
-// Relief expected: the section sits on its sunken floor, without the card.
-.relief-floors .panel {
-    background-color: transparent;
-    border-color: transparent;
-    box-shadow: none;
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
 }

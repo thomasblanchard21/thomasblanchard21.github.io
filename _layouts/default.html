@@ -29,16 +29,6 @@
     {% endif %}
     {% if header_effect %}
         <script type="module" src="{{ "/assets/js/domain-warp-header.js" | relative_url }}"></script>
-        {% comment %}
-            Before the first paint, so the section cards don't show while the
-            relief loads (see _sass/panels.scss). Inline: a separate file would
-            hold up the page. The relief module removes the class if it fails.
-        {% endcomment %}
-        <script>
-            if (window.WebGLRenderingContext && "IntersectionObserver" in window && "ResizeObserver" in window) {
-                document.documentElement.classList.add("relief-floors");
-            }
-        </script>
     {% endif %}
     <script type="module" src="{{ "/assets/js/sticky-nav.js" | relative_url }}"></script>
     <script type="module" src="{{ "/assets/js/section-scroll.js" | relative_url }}"></script>
