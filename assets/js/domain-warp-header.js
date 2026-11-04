@@ -11,9 +11,14 @@
  *      https://iquilezles.org/articles/warp/), rendered into an RGBA8 texture
  *      with the height packed into two channels (16-bit precision). The
  *      texture has a margin around the visible area so shadows near the edges
- *      can still find their occluders.
+ *      can still find their occluders. The canvas stays fixed, but the pattern
+ *      is shifted by the page scroll, so the relief scrolls with the page.
  *      The mouse presses a smooth dip into the height there, so the
  *      layers around the cursor step down.
+ *      Each section of the page sits on a flat floor sunk into the relief:
+ *      inside a rounded rectangle following the section (passed in every
+ *      frame, as it scrolls), the height is a constant low level, and around
+ *      it the relief eases down to it, so the layers step down into the basin.
  *   2. Shade pass: the height is softly terraced into rounded layers, normals
  *      come from finite differences, a short march toward the light gives soft
  *      shadows, and a ring of samples gives a cavity/occlusion term.
@@ -32,14 +37,16 @@
 // Tweakable look. World units: `referenceHeight` CSS px span `scale` units.
 const CONFIG = {
     scale: 0.8,             // zoom: larger = more, smaller features
-    referenceHeight: 300,   // CSS px, so the feature size doesn't depend on the viewport
+    referenceHeight: 300,   // CSS px, so the feature size doesn't depend on the viewport...
+    narrowWidth: 800,       // ...except below this window width (CSS px), where the features
+    narrowMinSize: 0.55,    // shrink with it, down to this fraction of their size
     warp: 1.0,              // domain warp strength (k above)
     contrast: 2.3,          // spread of the raw fBm height around 0.5
     flowSpeed: 0.03,        // animation speed (world units per second, roughly)
     terraces: 11.0,         // number of layers over the full height range
     terraceWidth: 0.58,     // width of the rounded step in each layer (0..1)
     terraceSlope: 0.35,     // how much of the raw slope survives on the plateaus
-    depth: 0.18,            // relief depth in world units (stronger shading/shadows)
+    depth: 0.12,            // relief depth in world units (stronger shading/shadows)
     lightAzimuth: 145,      // degrees, 0 = from the right, 90 = from the top
     lightElevation: 35,     // degrees above the horizon (low = raking light)
     shadowLength: 0.09,     // max shadow march distance in world units
@@ -67,6 +74,14 @@ const CONFIG = {
     hoverDepth: 0.45,       // how far the height drops at the centre (height range is 0..1)
     hoverFollow: 8.0,       // how fast the dip follows the cursor (per second)
     hoverFade: 4.0,         // how fast the dip appears/disappears (per second)
+    // Sunken floors under the sections (.content > section.panel)
+    floorLevel: 0.05,       // height of the floors (height range is 0..1)
+    floorMargin: 60,        // CSS px around a section over which the relief eases down to it...
+    floorMarginShare: 0.45, // ...at most this share of the gap beside the section (narrow screens),
+    floorMarginMin: 14,     // ...and at least this (CSS px)
+    floorRadius: 16,        // CSS px, corner radius of the floors
+    floorWave: 50,          // CSS px, how far the edge of the floors wanders in and out with the
+                            // relief, scaled down along with the margin
     // Performance
     maxDpr: 2,              // device pixel ratio cap
     renderScale: 0.75,      // internal resolution relative to CSS px * DPR
@@ -146,9 +161,15 @@ uniform float uWarp;
 uniform float uContrast;
 uniform float uTime;
 uniform vec2 uSeed;
+uniform float uScroll;   // page scroll, in world units
 uniform vec3 uMouse;     // xy: cursor in world units (no seed), z: dip strength 0..1
 uniform float uHoverRadius;
 uniform float uHoverDepth;
+uniform vec4 uFloors[2]; // section floors in world units (no seed): xy min corner, zw max corner
+uniform float uFloorRadius;
+uniform float uFloorMargin;
+uniform float uFloorLevel;
+uniform float uFloorWave;
 
 // Gradient noise with a cheap arithmetic hash.
 vec2 grad(vec2 c) {
@@ -170,6 +191,12 @@ float noise(vec2 p) {
 }
 
 const mat2 ROT = mat2(1.6, 1.2, -1.2, 1.6); // rotate ~37 deg, scale 2
+
+// Signed distance to a rounded rectangle (negative inside).
+float roundedRect(vec2 p, vec4 r, float radius) {
+    vec2 q = abs(p - 0.5 * (r.xy + r.zw)) - 0.5 * (r.zw - r.xy) + radius;
+    return length(max(q, 0.0)) + min(max(q.x, q.y), 0.0) - radius;
+}
 
 // Final layer: a few octaves with a low gain keeps the contours smooth.
 float fbm(vec2 p) {
@@ -197,7 +224,7 @@ float fbmLow(vec2 p) {
 
 void main() {
     vec2 pv = (gl_FragCoord.xy - uPad) / uViewH * uScale;
-    vec2 p = pv + uSeed;
+    vec2 p = pv + uSeed - vec2(0.0, uScroll);
     float t = uTime;
 
     vec2 q = vec2(fbmLow(p + vec2(0.0, 0.0) + t * vec2(0.6, 0.2)),
@@ -209,7 +236,14 @@ void main() {
     vec2 dm = (pv - uMouse.xy) / uHoverRadius;
     float dip = uMouse.z * exp(-dot(dm, dm));
 
-    float h = clamp(0.5 + uContrast * f - uHoverDepth * dip, 0.0, 0.9999);
+    // Sections: flat floors, without the dip, with the relief easing down around them.
+    // The edge wanders with the warp field, so it follows the flow of the relief.
+    float d = min(roundedRect(pv, uFloors[0], uFloorRadius), roundedRect(pv, uFloors[1], uFloorRadius));
+    d += uFloorWave * r.x;
+    float sink = 1.0 - smoothstep(0.0, uFloorMargin, d);
+
+    float h = 0.5 + uContrast * f - uHoverDepth * dip * (1.0 - sink);
+    h = clamp(mix(h, uFloorLevel, sink), 0.0, 0.9999);
     float hi = floor(h * 255.0);
     float lo = h * 255.0 - hi;
     gl_FragColor = vec4(hi / 255.0, lo, 0.0, 1.0);
@@ -434,7 +468,9 @@ function createRenderer(canvas) {
         }
     }
 
-    function render(time, mouse) {
+    // mouse, floors: in canvas-height units, origin bottom-left (see mount);
+    // floors.scroll: page scroll, in the same units.
+    function render(time, mouse, floors) {
         const texel = worldH / height;
 
         // Pass 1: heightfield into the texture (with margin).
@@ -449,9 +485,15 @@ function createRenderer(canvas) {
         gl.uniform1f(u.uContrast, CONFIG.contrast);
         gl.uniform1f(u.uTime, time * CONFIG.flowSpeed);
         gl.uniform2f(u.uSeed, SEED[0], SEED[1]);
+        gl.uniform1f(u.uScroll, floors.scroll * worldH);
         gl.uniform3f(u.uMouse, mouse.x * worldH, mouse.y * worldH, mouse.strength);
         gl.uniform1f(u.uHoverRadius, CONFIG.hoverRadius);
         gl.uniform1f(u.uHoverDepth, CONFIG.hoverDepth);
+        gl.uniform4fv(u["uFloors[0]"], floors.rects.map((v) => v * worldH));
+        gl.uniform1f(u.uFloorRadius, floors.radius * worldH);
+        gl.uniform1f(u.uFloorMargin, floors.margin * worldH);
+        gl.uniform1f(u.uFloorLevel, CONFIG.floorLevel);
+        gl.uniform1f(u.uFloorWave, floors.wave * worldH);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
 
         // Pass 2: shading to the canvas.
@@ -528,6 +570,18 @@ function mount(canvas, toggle) {
     const pointer = { x: 0, y: 0, inside: false };
     const mouse = { x: 0, y: 0, strength: 0 };
     let lastMouseUpdate = 0;
+    // Floors under the (at most two) sections near the window, in the same
+    // units as the cursor: min x, min y, max x, max y each. Unused slots sit
+    // far off-screen.
+    const panels = Array.from(document.querySelectorAll(".content > section.panel"));
+    // Also the page scroll, which moves the relief along with the floors.
+    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, scroll: 0 };
+    let stillFrame = 0;
+
+    // Feature size relative to wide screens: smaller on narrow ones.
+    function patternSize(width) {
+        return Math.min(1, Math.max(CONFIG.narrowMinSize, width / CONFIG.narrowWidth));
+    }
 
     function canvasSize() {
         const rect = canvas.getBoundingClientRect();
@@ -542,8 +596,42 @@ function mount(canvas, toggle) {
         return [
             Math.max(1, Math.round(rect.width * scale)),
             Math.max(1, Math.round(rect.height * scale)),
-            CONFIG.scale * rect.height / CONFIG.referenceHeight,
+            CONFIG.scale * rect.height / (CONFIG.referenceHeight * patternSize(rect.width)),
         ];
+    }
+
+    // Reads where the sections are and the page scroll; returns whether either moved.
+    function updateFloors() {
+        const rect = canvas.getBoundingClientRect();
+        const unit = rect.height || 1;
+        const next = new Float32Array(8).fill(-100);
+        let slot = 0;
+        // Gap between the sections and the sides of the window.
+        let gap = Infinity;
+        for (const panel of panels) {
+            const r = panel.getBoundingClientRect();
+            const reach = CONFIG.floorMargin + CONFIG.floorWave;
+            if (slot < 2 && r.bottom > rect.top - reach && r.top < rect.bottom + reach) {
+                gap = Math.min(gap, r.left - rect.left, rect.right - r.right);
+                next.set([
+                    (r.left - rect.left) / unit,
+                    (rect.bottom - r.bottom) / unit,
+                    (r.right - rect.left) / unit,
+                    (rect.bottom - r.top) / unit,
+                ], 4 * slot);
+                slot++;
+            }
+        }
+        floors.radius = CONFIG.floorRadius / unit;
+        // Narrow screens: a slimmer edge, so the relief beside it still shows.
+        const margin = Math.max(CONFIG.floorMarginMin, Math.min(CONFIG.floorMargin, CONFIG.floorMarginShare * gap));
+        floors.margin = margin / unit;
+        floors.wave = CONFIG.floorWave * (margin / CONFIG.floorMargin) / unit;
+        const scroll = window.scrollY / unit;
+        const moved = scroll !== floors.scroll || next.some((v, i) => v !== floors.rects[i]);
+        floors.rects = next;
+        floors.scroll = scroll;
+        return moved;
     }
 
     function draw(now) {
@@ -554,7 +642,7 @@ function mount(canvas, toggle) {
         }
         const t = CONFIG.frozenTime + (reducedMotion.matches ? 0 : elapsed / 1000);
         updateMouse(now);
-        renderer.render(t, mouse);
+        renderer.render(t, mouse, floors);
         canvas.classList.add("is-ready");
     }
 
@@ -563,6 +651,7 @@ function mount(canvas, toggle) {
     function drawStill() {
         pointer.inside = false;
         mouse.strength = 0;
+        updateFloors();
         draw(performance.now());
     }
 
@@ -621,7 +710,9 @@ function mount(canvas, toggle) {
             return;
         }
         const interval = now - lastDraw;
-        if (interval >= 1000 / PERF.maxFps - 2) {
+        // While the page scrolls, every frame, so the relief and floors move with the text.
+        const moved = updateFloors();
+        if (moved || interval >= 1000 / PERF.maxFps - 2) {
             lastDraw = now;
             // A long gap (first frame, hiccup) neither moves the clock much nor counts as slow.
             if (interval < 250) {
@@ -749,6 +840,19 @@ function mount(canvas, toggle) {
         pointer.inside = false;
     };
 
+    // Still frame: redrawn as the page scrolls, for the relief and floors to follow.
+    const onScroll = () => {
+        if (!renderer || frame || stillFrame || !isFrozen()) {
+            return;
+        }
+        stillFrame = requestAnimationFrame(() => {
+            stillFrame = 0;
+            if (renderer && !frame && isFrozen() && !document.hidden) {
+                drawStill();
+            }
+        });
+    };
+
     const onVisibility = () => update();
     const onMotionChange = () => {
         syncToggle();
@@ -779,6 +883,7 @@ function mount(canvas, toggle) {
     };
 
     document.addEventListener("pointermove", onPointerMove);
+    window.addEventListener("scroll", onScroll, { passive: true });
     document.documentElement.addEventListener("pointerleave", onPointerLeave);
     document.addEventListener("visibilitychange", onVisibility);
     reducedMotion.addEventListener("change", onMotionChange);
@@ -792,9 +897,14 @@ function mount(canvas, toggle) {
 
     function teardown() {
         stop();
+        if (stillFrame) {
+            cancelAnimationFrame(stillFrame);
+            stillFrame = 0;
+        }
         io.disconnect();
         ro.disconnect();
         document.removeEventListener("pointermove", onPointerMove);
+        window.removeEventListener("scroll", onScroll);
         document.documentElement.removeEventListener("pointerleave", onPointerLeave);
         document.removeEventListener("visibilitychange", onVisibility);
         reducedMotion.removeEventListener("change", onMotionChange);

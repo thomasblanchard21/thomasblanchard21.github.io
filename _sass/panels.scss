@@ -3,9 +3,10 @@
 /*
  * Section panels
  *
- * Each section of index.md is wrapped in a <section class="panel">: a frosted
- * glass card that blurs the relief behind it so the text stays readable.
- * Browsers without backdrop-filter get a more opaque panel instead.
+ * Each section of index.md is wrapped in a <section class="panel">. It has no
+ * card of its own: assets/js/domain-warp-header.js sinks a flat floor into the
+ * relief under it, which keeps the text readable. Without the relief (no JS or
+ * WebGL), the text sits on the pale fallback background (see banner.scss).
  *
  * One section per screen: each panel is centered in a grid row at least as
  * tall as the window, and the page snaps from one row to the next when
@@ -35,10 +36,6 @@ html {
 .panel {
     margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     padding: 10px $content-padding;
-    background-color: $panel-background-opaque;
-    border: 1px solid $panel-border;
-    border-radius: $panel-radius;
-    box-shadow: $panel-shadow;
     scroll-snap-align: center;
     scroll-margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     &:first-child {
@@ -51,19 +48,14 @@ html {
     }
 }
 
-@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
-    .panel {
-        background-color: $panel-background;
-        -webkit-backdrop-filter: blur($panel-blur) saturate(1.2);
-        backdrop-filter: blur($panel-blur) saturate(1.2);
-    }
-}
-
 @media (max-width: 500px) {
     .content {
         grid-template-rows: minmax(calc(100vh - #{$banner-height-small}), auto);
         grid-template-rows: minmax(calc(100svh - #{$banner-height-small}), auto);
         margin-bottom: calc(-1 * var(--footer-height, #{$footer-height-small}));
+        &.container {
+            max-width: calc(100% - #{2 * $panel-side-gap-small});
+        }
     }
     .panel {
         margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
