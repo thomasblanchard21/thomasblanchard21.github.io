@@ -70,10 +70,10 @@ const CONFIG = {
     ambientColor: [0.90, 0.93, 0.96],
     // Dark theme: these replace the values above (dark grey, almost black plaster)
     dark: {
-        albedo: [0.105, 0.105, 0.11],
+        albedo: [0.15, 0.15, 0.155],
         sunColor: [1.0, 0.98, 0.95],
         ambientColor: [0.92, 0.93, 0.95],
-        sheen: 0.035,
+        sheen: 0.06,
     },
     seed: null,             // [x, y] shifts the pattern; null picks a random one per page load
     seedRange: 20.0,        // random seeds fall in [0, seedRange); kept small for mediump GPUs
