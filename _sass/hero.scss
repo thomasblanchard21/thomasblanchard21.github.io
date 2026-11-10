@@ -3,8 +3,9 @@
 /*
  * Hero
  *
- * The first screen: the name, the tagline and the section links, centered
- * over the relief (no background of its own). It is a snap screen like the
+ * The first screen, over the relief (no background of its own): the name
+ * and tagline centered, and a quiet row of section links along the top, at
+ * the height of the sticky bar that takes over once the hero scrolls away. It is a snap screen like the
  * section panels (see panels.scss and assets/js/section-scroll.js).
  *
  * The scroll hint at the bottom is a pointer shortcut (the nav holds the
@@ -43,13 +44,27 @@
 }
 
 .hero-tagline {
-    margin: 14px 0 32px;
+    margin: 14px 0 0;
     font-size: $hero-tagline-size;
     color: $muted-color;
 }
 
+.hero-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: $sticky-bar-height;
+    // Clear of the theme switch in the corner
+    padding: 0 ($theme-toggle-offset + $theme-toggle-size + 8px);
+}
+
 .hero-nav a {
-    color: $text-color;
+    color: $muted-color;
+    font-size: 14px;
     &:hover {
         color: $accent;
         text-decoration: none;
@@ -60,7 +75,7 @@
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 8px 28px;
+    gap: 4px 24px;
     margin: 0;
     padding: 0;
     list-style-type: none;
@@ -128,9 +143,11 @@
     }
     .hero-tagline {
         font-size: $hero-tagline-size-small;
-        margin-bottom: 24px;
+    }
+    .hero-top {
+        padding: 8px ($theme-toggle-offset / 2 + $theme-toggle-size + 4px);
     }
     .hero-nav {
-        gap: 6px 18px;
+        gap: 2px 14px;
     }
 }
