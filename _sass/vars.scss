@@ -51,6 +51,12 @@ $rule-dark: var(--rule-dark);
 $rule-light: var(--rule-light);
 $bar-shadow: var(--bar-shadow);
 $icon-color: var(--icon);
+// IBM Plex Sans for the text, IBM Plex Mono for small technical labels
+// (footer, scroll hint, section dot labels, list numbers, code)
+$font-sans: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+$font-mono: "IBM Plex Mono", Menlo, Consolas, monospace;
+$font-size: 16px;
+$line-height: 1.6;
 $image-size: 150px;
 $image-size-small: 110px;
 $footer-color: $text-color;

@@ -1,6 +1,10 @@
 @import "vars";
 
 .content {
+    h2, h3 {
+        font-weight: 600;
+        letter-spacing: -0.01em;
+    }
     a:hover {
         text-decoration: underline;
     }
@@ -26,6 +30,8 @@
     ol > li:before {
         content: "[" counter(list, decimal) "] ";
         counter-increment: list;
+        font-family: $font-mono;
+        font-size: 0.9em;
         position: absolute;
         left: -30px;
     }

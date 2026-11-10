@@ -11,7 +11,9 @@ html {
 }
 body {
     margin: 0;
-    font-family: "Inconsolata";
+    font-family: $font-sans;
+    font-size: $font-size;
+    line-height: $line-height;
     color: $text-color;
     height: 100%;
 }
@@ -50,9 +52,13 @@ hr {
         margin: 0 auto;
         padding: 16px 0;
     }
+    font-family: $font-mono;
     a {
         color: $footer-color;
     }
+}
+code, pre, kbd, samp {
+    font-family: $font-mono;
 }
 
 /* Mobile */
