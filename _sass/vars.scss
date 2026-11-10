@@ -21,11 +21,6 @@ $footer-height: 65px;
 $footer-height-small: 100px; // the footer wraps at phone width
 $content-padding: 30px;
 $content-padding-small: 16px;
-// Switch turning the relief animation on/off (top-right corner of the page)
-$relief-toggle-width: 34px;
-$relief-toggle-height: 18px;
-$relief-toggle-off: #b5b5b5;
-$relief-toggle-color: #272727;
 
 // Slim nav bar pinned at the top once the banner is scrolled away (see _sass/sticky-bar.scss)
 $sticky-bar-height: 48px;
