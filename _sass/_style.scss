@@ -53,8 +53,12 @@ hr {
         padding: 16px 0;
     }
     font-family: $font-mono;
+    color: $muted-color;
     a {
         color: $footer-color;
+        &:hover {
+            color: $accent;
+        }
     }
 }
 code, pre, kbd, samp {

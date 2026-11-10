@@ -66,8 +66,15 @@ html {
     margin: 0 5px 0 10px;
 }
 
-.sticky-bar .is-current {
-    text-decoration: underline;
+.sticky-bar-links a {
+    color: $text-color;
+    &:hover {
+        color: $accent;
+        text-decoration: none;
+    }
+    &.is-current {
+        color: $accent;
+    }
 }
 
 @media (max-width: 500px) {

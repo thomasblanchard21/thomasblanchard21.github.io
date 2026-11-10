@@ -45,6 +45,15 @@
 .hero-tagline {
     margin: 14px 0 32px;
     font-size: $hero-tagline-size;
+    color: $muted-color;
+}
+
+.hero-nav a {
+    color: $text-color;
+    &:hover {
+        color: $accent;
+        text-decoration: none;
+    }
 }
 
 .hero-nav {

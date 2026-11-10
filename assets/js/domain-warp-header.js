@@ -65,14 +65,15 @@ const CONFIG = {
     sheen: 0.15,            // strength of the broad satin specular
     sheenPower: 20.0,       // specular exponent (lower = broader)
     layerTint: 0.035,       // per-layer albedo variation (subtle strata)
-    albedo: [0.975, 0.985, 0.995],
-    sunColor: [1.0, 0.99, 0.97],
-    ambientColor: [0.90, 0.93, 0.96],
+    // Warm neutral plaster, matching the palette in _sass/vars.scss
+    albedo: [0.985, 0.978, 0.965],
+    sunColor: [1.0, 0.985, 0.96],
+    ambientColor: [0.93, 0.93, 0.93],
     // Dark theme: these replace the values above (dark grey, almost black plaster)
     dark: {
-        albedo: [0.15, 0.15, 0.155],
+        albedo: [0.152, 0.148, 0.142],
         sunColor: [1.0, 0.98, 0.95],
-        ambientColor: [0.92, 0.93, 0.95],
+        ambientColor: [0.93, 0.93, 0.93],
         sheen: 0.06,
     },
     seed: null,             // [x, y] shifts the pattern; null picks a random one per page load
