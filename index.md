@@ -9,14 +9,8 @@ layout: default
 <!-- TODO(thomas): replace sherlock.jpg with your own photo -->
 <img class="profile-picture" src="{{ "/sherlock.jpg" | relative_url }}" alt="Photo of Thomas Blanchard">
 
-TODO: short introduction (who you are, current position, interests).
+I'm a research scientist in Machine Learning, currently at SafranTech and INRAE for my PhD. In my work, I explore interpretable learning through symbolic regression and its industrial applications. I'm focusing on LLM hybridation in genetic algorithms and prior knowledge integration for a constrained, tractable evolution. 
 
-<!-- TODO(thomas): temporary layout filler, remove once the introduction is written -->
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam finibus ipsum ac erat aliquam dapibus. Vestibulum vehicula placerat ex, a consectetur odio pharetra quis. Mauris id urna ante. Fusce pharetra diam ac nisi aliquet, vel egestas ex iaculis. Pellentesque laoreet cursus tellus sed pellentesque. Praesent a rhoncus elit. Nunc ipsum nisl, consequat sit amet pretium quis, gravida id ipsum.
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo. Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt.
-
-Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit laboriosam, nisi ut aliquid ex ea commodi consequatur. Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur, vel illum qui dolorem eum fugiat quo voluptas nulla pariatur.
 
 </section>
 
@@ -24,26 +18,14 @@ Ut enim ad minima veniam, quis nostrum exercitationem ullam corporis suscipit la
 
 ## Projects {#projects}
 
-TODO: list your projects.
 
-<!-- TODO(thomas): temporary layout filler, remove once the projects are listed -->
-### Lorem project one
+### sigma-SR
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere erat a ante venenatis dapibus. Donec ullamcorper nulla non metus auctor fringilla. Cras mattis consectetur purus sit amet fermentum.
+In this project, I explore the use of symbolic regression for intrepretable uncertainty quantification (UQ) via Conformal Prediction. Article and results coming soon...
 
-- Vestibulum id ligula porta felis euismod semper
-- Maecenas faucibus mollis interdum
-- Nullam quis risus eget urna mollis ornare vel eu leo
+### MotionDPO
 
-### Lorem project two
-
-Curabitur blandit tempus porttitor. Etiam porta sem malesuada magna mollis euismod. Aenean lacinia bibendum nulla sed consectetur. Fusce dapibus, tellus ac cursus commodo, tortor mauris condimentum nibh, ut fermentum massa justo sit amet risus.
-
-Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Praesent commodo cursus magna, vel scelerisque nisl consectetur et. Donec sed odio dui. Nulla vitae elit libero, a pharetra augue.
-
-### Lorem project three
-
-Sed posuere consectetur est at lobortis. Duis mollis, est non commodo luctus, nisi erat porttitor ligula, eget lacinia odio sem nec elit. Maecenas sed diam eget risus varius blandit sit amet non magna.
+For my Master's Thesis, I worked on fine-tuning a 3D Human Pose Estimation model to enhance visual quality and aesthetic via Reinforcement Learning by Human Feedback (RLHF). I developed an online arena-like platform to collect pairwise preference, then optimized a model architecture via Direct Preference Optimization (DPO).  
 
 </section>
 
@@ -51,26 +33,13 @@ Sed posuere consectetur est at lobortis. Duis mollis, est non commodo luctus, ni
 
 ## Research {#research}
 
-TODO: describe your research interests and current work.
-
-<!-- TODO(thomas): temporary layout filler, remove once the research section is written -->
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet, consectetur, adipisci velit.
-
-### Lorem interest
-
-Quis autem vel eum iure reprehenderit qui in ea voluptate velit esse quam nihil molestiae consequatur. At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et quas molestias excepturi sint occaecati cupiditate non provident.
-
-### Ipsum interest
-
-Nam libero tempore, cum soluta nobis est eligendi optio cumque nihil impedit quo minus id quod maxime placeat facere possimus, omnis voluptas assumenda est, omnis dolor repellendus. Temporibus autem quibusdam et aut officiis debitis aut rerum necessitatibus saepe eveniet.
+My research focuses on interpretability for prediction models via Symbolic Regression. I'm exploring hybridation with LLMs and how to guide the model towards physics-informed solutions.
 
 </section>
 
 <section class="panel" markdown="1">
 
 ## Publications {#publications}
-
-TODO: list your publications.
 
 <!-- TODO(thomas): temporary layout filler, remove once the real publications are listed -->
 1. Lorem, I. and Dolor, S. *Consectetur adipiscing elit sed do eiusmod tempor.* Placeholder Journal of Lorem Ipsum, 20XX.
@@ -85,13 +54,8 @@ TODO: list your publications.
 
 ## Contact {#contact}
 
-TODO: add contact details (email, social / academic profiles).
-
-<!-- TODO(thomas): temporary layout filler, remove once the contact details are added -->
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-
-- Email: TODO
-- Lorem profile: TODO
-- Ipsum profile: TODO
-
+- Email: [samohtblanchard@gmail.com](mailto:samohtblanchard@gmail.com)
+- [LinkedIn](https://www.linkedin.com/in/thomas-blanchard-a4b33b204/)
+- [GitHub](https://github.com/thomasblanchard21)
+- [Google Scholar](https://scholar.google.com/citations?hl=en&user=JrhxehMAAAAJ)
 </section>
