@@ -50,6 +50,9 @@ html {
     align-items: center;
     justify-content: space-between;
     min-height: $sticky-bar-height;
+    // Whole window width: the name at the left, the links ending just left of
+    // the theme switch, like the hero's links
+    padding: 0 $nav-inset-right 0 $nav-inset-left;
 }
 
 .sticky-bar-name {
@@ -59,14 +62,12 @@ html {
 }
 
 .sticky-bar-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px $nav-gap;
     margin: 0;
     padding: 0;
     list-style-type: none;
-}
-
-.sticky-bar-item {
-    display: inline;
-    margin: 0 5px 0 10px;
 }
 
 .sticky-bar-links a {
@@ -83,18 +84,16 @@ html {
 @media (max-width: 500px) {
     .sticky-bar-inner {
         justify-content: center;
-        padding: 6px 0;
+        padding: 6px 8.5%; // as wide as the page column
     }
     .sticky-bar-name {
         font-size: 17px;
         margin-right: 0;
     }
     .sticky-bar-links {
+        justify-content: center;
+        gap: 0 4px;
         width: 100%;
-        text-align: center;
         font-size: 14px;
-    }
-    .sticky-bar-item {
-        margin: 0 2px;
     }
 }

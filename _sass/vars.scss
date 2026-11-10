@@ -70,6 +70,11 @@ $footer-color: $muted-color; // footer links (accent on hover)
 $theme-toggle-size: 32px;      // clickable area
 $theme-toggle-icon-size: 18px;
 $theme-toggle-offset: 12px;    // gap to the window corner
+// The top row of links (hero, then sticky bar) spans the whole window: the
+// links end just left of the theme switch, the bar's name starts at the left
+$nav-inset-right: $theme-toggle-offset + $theme-toggle-size + 12px;
+$nav-inset-left: 24px;
+$nav-gap: clamp(16px, 2.6vw, 40px); // between links, grows with the window
 
 // Hero: the full first screen with the name (see _sass/hero.scss)
 $hero-name-size: 64px;
