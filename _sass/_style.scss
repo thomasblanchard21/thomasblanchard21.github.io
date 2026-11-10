@@ -12,6 +12,7 @@ html {
 body {
     margin: 0;
     font-family: "Inconsolata";
+    color: $text-color;
     height: 100%;
 }
 a {
@@ -24,8 +25,8 @@ a:hover {
 hr {
     border: 0;
     height: 0;
-    border-top: 1px solid rgba(0, 0, 0, 0.1);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+    border-top: 1px solid $rule-dark;
+    border-bottom: 1px solid $rule-light;
 }
 
 /*
@@ -34,7 +35,7 @@ hr {
 
 #author-name {
     font-size: 30px;
-    color: #272727;
+    color: $title-color;
     display: inline-block;
 }
 .navbar {
@@ -140,6 +141,7 @@ hr {
 	}
 }
 
+@import "theme";
 @import "typography";
 @import "tables";
 @import "banner";

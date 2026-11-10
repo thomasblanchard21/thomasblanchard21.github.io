@@ -2,20 +2,72 @@
  * Customization Variables
  */
 
-$accent: #FF0F00;
+// Colors of the light and dark themes. _sass/theme.scss turns each entry
+// into a CSS custom property (--accent, ...), and the variables below point
+// to them, so the whole page switches when <html data-theme="dark"> is set
+// (by assets/js/theme.js). The WebGL relief has its own dark look, in
+// CONFIG.dark of assets/js/domain-warp-header.js.
+$theme-light: (
+    accent: #FF0F00,
+    text: black,
+    title: #272727,              // site name in the banner and the sticky bar
+    surface: white,              // banner, sticky bar, footer
+    surface-alt: #f8f8f8,        // every other table row
+    border: #cccccc,             // table borders
+    quote-border: #333333,
+    rule-dark: rgba(0, 0, 0, 0.1),        // the two lines of an <hr>
+    rule-light: rgba(255, 255, 255, 0.3),
+    bar-shadow: rgba(0, 0, 0, 0.08),      // line under the sticky bar
+    dot: #111,                   // section dots on the right
+    icon: #8a8a8a,               // theme switch (moon/sun), accent on hover
+    relief-fallback-light: #f3f2ef,
+    relief-fallback-dark: #d9d8d4,
+);
+$theme-dark: (
+    accent: #FF8A3D,             // mandarin: lighter and more orange than the light accent
+    text: #e4e2de,
+    title: #eeece8,
+    surface: #121212,
+    surface-alt: #1b1b1b,
+    border: #3a3a3a,
+    quote-border: #8a8a8a,
+    rule-dark: rgba(0, 0, 0, 0.4),
+    rule-light: rgba(255, 255, 255, 0.08),
+    bar-shadow: rgba(255, 255, 255, 0.06),
+    dot: #d8d8d8,
+    icon: #8f8f8f,
+    relief-fallback-light: #1f1f1f,
+    relief-fallback-dark: #141414,
+);
+
+$accent: var(--accent);
+$text-color: var(--text);
+$title-color: var(--title);
+$surface: var(--surface);
+$surface-alt: var(--surface-alt);
+$border-color: var(--border);
+$quote-border-color: var(--quote-border);
+$rule-dark: var(--rule-dark);
+$rule-light: var(--rule-light);
+$bar-shadow: var(--bar-shadow);
+$icon-color: var(--icon);
 $image-size: 150px;
 $image-size-small: 110px;
-$footer-color: black;
+$footer-color: $text-color;
+// Theme switch in the top-right corner (see _sass/theme.scss)
+$theme-toggle-size: 32px;      // clickable area
+$theme-toggle-icon-size: 18px;
+$theme-toggle-offset: 12px;    // gap to the window corner
 
 // Header banner (holds the site name and nav, see _sass/banner.scss)
 $banner-height: 140px;
 $banner-height-small: 150px; // name and nav stack at phone width
-$banner-background: white; // flat, covers the relief (which shows from the sections down)
+$banner-background: $surface; // flat, covers the relief (which shows from the sections down)
 // Page background (domain-warp relief): static background shown without
 // JS/WebGL, and under the canvas while it loads
-$relief-fallback-light: #f3f2ef;
-$relief-fallback-dark: #d9d8d4;
-$footer-background: white; // solid full-width band at the bottom of the page
+$relief-fallback-light: var(--relief-fallback-light);
+$relief-fallback-dark: var(--relief-fallback-dark);
+$footer-background: $surface; // solid full-width band at the bottom of the page
 // Footer height before assets/js/section-scroll.js measures it (or without JS)
 $footer-height: 65px;
 $footer-height-small: 100px; // the footer wraps at phone width
@@ -30,7 +82,7 @@ $sticky-bar-background: $banner-background; // flat and opaque, like the banner
 // Column of dots on the right, one per section (see _sass/section-dots.scss)
 $section-dot-size: 9px;
 $section-dot-hit-size: 22px;  // area around each dot that reacts to the mouse
-$section-dot-color: #111;
+$section-dot-color: var(--dot);
 $section-dots-offset: 12px;   // gap between the dots and the window edge
 $section-dots-offset-small: 2px;
 // Gap around the section panels (one per screen, see _sass/panels.scss)

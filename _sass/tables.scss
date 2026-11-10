@@ -5,23 +5,23 @@ table {
     padding: 0;
 }
 table tr {
-    border-top: 1px solid #cccccc;
-    background-color: white;
+    border-top: 1px solid $border-color;
+    background-color: $surface;
     margin: 0;
     padding: 0;
 }
 table tr:nth-child(2n) {
-    background-color: #f8f8f8;
+    background-color: $surface-alt;
 }
 table tr th {
     font-weight: bold;
-    border: 1px solid #cccccc;
+    border: 1px solid $border-color;
     text-align: left;
     margin: 0;
     padding: 6px 13px;
 }
 table tr td {
-    border: 1px solid #cccccc;
+    border: 1px solid $border-color;
     text-align: left;
     margin: 0;
     padding: 6px 13px;
