@@ -10,8 +10,11 @@
  * edge; a typical flick of the mouse wheel goes on to the top of the next
  * section (the rest of the gesture only pushes on the next edge), and a hard
  * one goes through several sections.
- * Arrow keys push like wheel notches; Page Up/Down and Space scroll a page,
- * stopping at the edge of a tall section, and move on from the edge.
+ * The keys don't push against the edge: from the edge of a section, one
+ * press moves on to the next one. Inside a section taller than the window,
+ * the arrow keys scroll by ARROW and Page Up/Down and Space by a page,
+ * stopping at its edge. The keys work whatever has focus, except in text
+ * fields, and Space on a focused button (which presses it).
  *
  * The scrolling is animated here (the browser's own is cancelled), easing
  * towards a target, with the CSS scroll snapping off meanwhile. Under
@@ -27,7 +30,7 @@ const LEAK = 500;       // ms for the pressure to leak down to about a third
 const QUIET = 150;      // ms without input that ends a gesture
 const GLIDE = 90;       // ms, time constant of the scrolling animation
 const LINE = 40;        // px per line, for wheel events counted in lines
-const ARROW = 100;      // px per arrow key press, like a wheel notch
+const ARROW = 100;      // px per arrow key press inside a tall section
 const PAGE = 0.85;      // Page Up/Down and Space, as a fraction of the window height
 
 function measureFooter(footer) {
@@ -124,8 +127,8 @@ function mount(panels) {
         target = y;
     }
 
-    // Scroll by delta px. stopAtEdge (page keys): a scroll that moved inside
-    // a tall section stops at its edge, and one from the edge goes through.
+    // Scroll by delta px. stopAtEdge (keys): a scroll that moved inside a
+    // tall section stops at its edge, and one from the edge goes through.
     function push(delta, stopAtEdge) {
         const dir = Math.sign(delta);
         const now = performance.now();
@@ -175,16 +178,17 @@ function mount(panels) {
             return;
         }
         const el = document.activeElement;
-        if (el && (el.isContentEditable || el.closest("input, textarea, select, button"))) {
+        if (el && (el.isContentEditable || el.closest("input, textarea, select")
+                || (e.key === " " && el.closest("button")))) {
             return; // keys that belong to the focused control
         }
         const page = window.innerHeight * PAGE;
         switch (e.key) {
             case "ArrowDown":
-                push(ARROW, false);
+                push(ARROW, true);
                 break;
             case "ArrowUp":
-                push(-ARROW, false);
+                push(-ARROW, true);
                 break;
             case "PageDown":
                 push(page, true);
