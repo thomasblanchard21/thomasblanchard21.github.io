@@ -34,6 +34,7 @@
     <script type="module" src="{{ "/assets/js/sticky-nav.js" | relative_url }}"></script>
     <script type="module" src="{{ "/assets/js/section-scroll.js" | relative_url }}"></script>
     <script type="module" src="{{ "/assets/js/scroll-hint.js" | relative_url }}"></script>
+    <script type="module" src="{{ "/assets/js/site-menu.js" | relative_url }}"></script>
     {% if site.favicon %}
         <link rel="icon" type="image/ico" href="{{ site.favicon_location }}">
         <link rel="shortcut-icon" type="image/ico" href="{{ site.favicon_location }}">
@@ -65,6 +66,7 @@
 </head>
 <body>
     {% include theme-toggle.html %}
+    {% include site-menu.html %}
     {% if header_effect %}
         <canvas class="relief-canvas" data-effect="domain-warp" aria-hidden="true"></canvas>
     {% endif %}

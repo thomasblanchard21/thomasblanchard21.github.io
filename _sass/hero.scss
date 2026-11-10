@@ -8,7 +8,7 @@
  * ending just left of the theme switch, where the sticky bar's links end too
  * (same height, same right edge, same spacing), so the bar
  * takes over in place once the hero scrolls away. Centered at phone width,
- * like the bar. It is a snap screen like the
+ * without JS (with JS, a menu button replaces them on small screens). It is a snap screen like the
  * section panels (see panels.scss and assets/js/section-scroll.js).
  *
  * The scroll hint at the bottom is a pointer shortcut (the nav holds the
@@ -139,6 +139,14 @@
     }
 }
 
+// Small screens: with JS, the menu button replaces the links (see
+// site-menu.scss). Without JS they stay, centered on phones.
+@media (max-width: $nav-collapse-width) {
+    .js .hero-top {
+        display: none;
+    }
+}
+
 @media (max-width: 500px) {
     .hero-name {
         font-size: $hero-name-size-small;
@@ -148,8 +156,7 @@
     }
     .hero-top {
         justify-content: center;
-        // Clear of the theme switch in the corner
-        padding: 8px ($theme-toggle-offset / 2 + $theme-toggle-size + 6px);
+        padding: 8px $nav-inset-left;
     }
     .hero-nav {
         justify-content: center;

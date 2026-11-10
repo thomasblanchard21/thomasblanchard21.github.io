@@ -81,19 +81,16 @@ html {
     }
 }
 
-@media (max-width: 500px) {
-    .sticky-bar-inner {
-        justify-content: center;
-        padding: 6px 8.5%; // as wide as the page column
+// Small screens: the name alone, the links are in the menu (site-menu.scss).
+// The bar needs JS anyway, like the menu.
+@media (max-width: $nav-collapse-width) {
+    .sticky-bar-links {
+        display: none;
     }
+}
+
+@media (max-width: 500px) {
     .sticky-bar-name {
         font-size: 17px;
-        margin-right: 0;
-    }
-    .sticky-bar-links {
-        justify-content: center;
-        gap: 0 4px;
-        width: 100%;
-        font-size: 14px;
     }
 }

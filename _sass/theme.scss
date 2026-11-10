@@ -22,14 +22,9 @@
     }
 }
 
-// Switch at the end of the top row of links: a moon in the light theme, a sun
-// in the dark one. Fixed, so it stays there over the hero, then over the
-// sticky bar. In the corner at phone width, where the links are centered.
-.theme-toggle {
-    position: fixed;
-    top: $theme-toggle-top;
-    right: $theme-toggle-right;
-    z-index: 20;
+// Round, borderless icon button with an outlined 18px icon. Shared by the
+// theme switch and the menu button (site-menu.scss).
+@mixin icon-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,15 +56,18 @@
         stroke-linecap: round;
         stroke-linejoin: round;
     }
-    .theme-icon-sun {
-        display: none;
-    }
     @media (prefers-reduced-motion: reduce) {
         transition: none;
     }
 }
 
-:root[data-theme="dark"] .theme-toggle {
+// Sun or moon, depending on the theme: anything holding a .theme-icon-moon
+// and a .theme-icon-sun (here and in the menu's theme row)
+.theme-icon-sun {
+    display: none;
+}
+
+:root[data-theme="dark"] {
     .theme-icon-moon {
         display: none;
     }
@@ -78,9 +76,20 @@
     }
 }
 
-@media (max-width: 500px) {
+// Switch at the end of the top row of links: a moon in the light theme, a sun
+// in the dark one. Fixed, so it stays there over the hero, then over the
+// sticky bar.
+.theme-toggle {
+    position: fixed;
+    top: $theme-toggle-top;
+    right: $theme-toggle-right;
+    z-index: 20;
+    @include icon-button;
+}
+
+// On small screens it moves into the menu (site-menu.scss)
+@media (max-width: $nav-collapse-width) {
     .theme-toggle {
-        top: $theme-toggle-offset / 2;
-        right: $theme-toggle-offset / 2;
+        display: none;
     }
 }

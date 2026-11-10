@@ -3,7 +3,7 @@
  *
  * Shows the slim .sticky-bar once the hero is halfway out of view (and hides
  * it again when the hero comes back), and
- * marks the bar link and the dot of the section on screen (.is-current,
+ * marks the bar link, the menu link and the dot of the section on screen (.is-current,
  * aria-current). A section is the panel holding an <h2 id>; the hero is the
  * top of the page ("#top").
  * Smooth scrolling and snapping between sections are plain CSS, see
@@ -14,7 +14,7 @@ function mount(bar, hero) {
     // Section headings, in page order (ids set in index.md).
     const sections = Array.from(document.querySelectorAll(".content h2[id]"));
     const links = Array.from(document.querySelectorAll(
-        ".sticky-bar-links a[href*='#'], .section-dots a[href*='#']",
+        ".sticky-bar-links a[href*='#'], .section-dots a[href*='#'], .site-menu a[href*='#']",
     )).filter((a) => {
         const url = new URL(a.href);
         return url.pathname === location.pathname;

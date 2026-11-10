@@ -24,6 +24,7 @@ $theme-light: (
     rule-dark: rgba(28, 27, 25, 0.1),     // the two lines of an <hr>
     rule-light: rgba(255, 255, 255, 0.3),
     bar-shadow: rgba(28, 27, 25, 0.08),   // line under the sticky bar
+    menu-shadow: rgba(28, 27, 25, 0.12),  // under the small-screen menu
     dot: #1c1b19,                // section dots on the right
     relief-fallback-light: #f4f2ee,
     relief-fallback-dark: #dcd8d2,
@@ -40,6 +41,7 @@ $theme-dark: (
     rule-dark: rgba(0, 0, 0, 0.4),
     rule-light: rgba(255, 255, 255, 0.08),
     bar-shadow: rgba(255, 255, 255, 0.06),
+    menu-shadow: rgba(0, 0, 0, 0.5),
     dot: #e6e3de,
     relief-fallback-light: #22201e,
     relief-fallback-dark: #161514,
@@ -55,6 +57,7 @@ $quote-border-color: var(--quote-border);
 $rule-dark: var(--rule-dark);
 $rule-light: var(--rule-light);
 $bar-shadow: var(--bar-shadow);
+$menu-shadow: var(--menu-shadow);
 $muted-color: var(--muted);
 $icon-color: $muted-color;
 // IBM Plex Sans for the text, IBM Plex Mono for small technical labels
@@ -89,7 +92,7 @@ $content-padding-small: 16px;
 
 // Slim nav bar pinned at the top once the hero is scrolled away (see _sass/sticky-bar.scss)
 $sticky-bar-height: 48px;
-$sticky-bar-height-small: 80px; // the bar wraps at phone width
+$sticky-bar-height-small: $sticky-bar-height; // one row on phones too: the links are in the menu
 $sticky-bar-background: $surface; // flat and opaque
 
 // The top row (hero links, then the sticky bar) spans the whole window: the
@@ -101,6 +104,11 @@ $nav-gap: clamp(16px, 2.6vw, 40px); // between links, grows with the window
 $theme-toggle-top: ($sticky-bar-height - $theme-toggle-size) / 2; // centered on the row
 $theme-toggle-right: $nav-inset-left - ($theme-toggle-size - $theme-toggle-icon-size) / 2;
 $nav-inset-right: calc(#{$nav-inset-left + $theme-toggle-icon-size} + #{$nav-gap});
+// Below this width the links no longer fit on one row (the sticky bar's
+// wrap at about 725px): a menu button takes the place of the links and the
+// theme switch (see _sass/site-menu.scss)
+$nav-collapse-width: 760px;
+$site-menu-width: 200px;
 
 // Column of dots on the right, one per section (see _sass/section-dots.scss)
 $section-dot-size: 9px;
