@@ -1,7 +1,8 @@
 /*
  * One-page navigation
  *
- * Shows the slim .sticky-bar once the hero has scrolled out of view, and
+ * Shows the slim .sticky-bar once the hero is halfway out of view (and hides
+ * it again when the hero comes back), and
  * marks the bar link and the dot of the section on screen (.is-current,
  * aria-current). A section is the panel holding an <h2 id>; the hero is the
  * top of the page ("#top").
@@ -41,7 +42,7 @@ function mount(bar, hero) {
 
     function update() {
         frame = 0;
-        bar.classList.toggle("is-visible", hero.getBoundingClientRect().bottom <= bar.offsetHeight);
+        bar.classList.toggle("is-visible", hero.getBoundingClientRect().bottom <= window.innerHeight / 2);
         const id = currentId();
         if (id === current) {
             return;

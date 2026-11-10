@@ -4,7 +4,7 @@
  * One-page navigation
  *
  * The nav links scroll to the sections of index.md. Once the hero has
- * scrolled out of view, assets/js/sticky-nav.js shows a slim bar with the
+ * scrolled halfway out of view, assets/js/sticky-nav.js shows a slim bar with the
  * site name and the links at the top (.is-visible) and marks the link of the
  * section being read (.is-current). Without JS the bar stays hidden and the
  * links still jump to the sections.
@@ -25,13 +25,16 @@ html {
     z-index: 10;
     background-color: $sticky-bar-background;
     box-shadow: 0 1px 0 $bar-shadow;
+    // Slides down from the top as it fades in.
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+    transform: translateY(-100%);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
     &.is-visible {
         opacity: 1;
         visibility: visible;
-        transition: opacity 0.25s ease;
+        transform: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
     @media (prefers-reduced-motion: reduce) {
         transition: none;
