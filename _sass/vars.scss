@@ -10,8 +10,8 @@
 $theme-light: (
     accent: #FF0F00,
     text: black,
-    title: #272727,              // site name in the banner and the sticky bar
-    surface: white,              // banner, sticky bar, footer
+    title: #272727,              // the name in the hero and the sticky bar
+    surface: white,              // sticky bar, footer
     surface-alt: #f8f8f8,        // every other table row
     border: #cccccc,             // table borders
     quote-border: #333333,
@@ -59,10 +59,11 @@ $theme-toggle-size: 32px;      // clickable area
 $theme-toggle-icon-size: 18px;
 $theme-toggle-offset: 12px;    // gap to the window corner
 
-// Header banner (holds the site name and nav, see _sass/banner.scss)
-$banner-height: 140px;
-$banner-height-small: 150px; // name and nav stack at phone width
-$banner-background: $surface; // flat, covers the relief (which shows from the sections down)
+// Hero: the full first screen with the name (see _sass/hero.scss)
+$hero-name-size: 64px;
+$hero-name-size-small: 40px;
+$hero-tagline-size: 20px;
+$hero-tagline-size-small: 17px;
 // Page background (domain-warp relief): static background shown without
 // JS/WebGL, and under the canvas while it loads
 $relief-fallback-light: var(--relief-fallback-light);
@@ -74,10 +75,10 @@ $footer-height-small: 100px; // the footer wraps at phone width
 $content-padding: 30px;
 $content-padding-small: 16px;
 
-// Slim nav bar pinned at the top once the banner is scrolled away (see _sass/sticky-bar.scss)
+// Slim nav bar pinned at the top once the hero is scrolled away (see _sass/sticky-bar.scss)
 $sticky-bar-height: 48px;
 $sticky-bar-height-small: 80px; // the bar wraps at phone width
-$sticky-bar-background: $banner-background; // flat and opaque, like the banner
+$sticky-bar-background: $surface; // flat and opaque
 
 // Column of dots on the right, one per section (see _sass/section-dots.scss)
 $section-dot-size: 9px;

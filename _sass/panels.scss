@@ -6,15 +6,15 @@
  * Each section of index.md is wrapped in a <section class="panel">. It has no
  * card of its own: assets/js/domain-warp-header.js sinks a flat floor into the
  * relief under it, which keeps the text readable. Without the relief (no JS or
- * WebGL), the text sits on the pale fallback background (see banner.scss).
+ * WebGL), the text sits on the pale fallback background (see background.scss).
  *
  * One section per screen: each panel is centered in a grid row at least as
  * tall as the window, and the page snaps from one row to the next when
  * scrolled (CSS scroll snap, smooth under the sticky-bar.scss scroll-behavior;
  * assets/js/section-scroll.js takes over the wheel and keyboard, so that the
  * edge of a section resists a gentle scroll). Each panel's scroll margins match its margins, so its snap area,
- * centered on the window, is the whole row. The first screen also holds the
- * banner, and the footer is pulled up over the bottom of the last one
+ * centered on the window, is the whole row. The hero (hero.scss) is a screen
+ * of its own before them, and the footer is pulled up over the bottom of the last one
  * (--footer-height, measured by section-scroll.js). A section taller than
  * the window scrolls freely until its end.
  */
@@ -26,8 +26,6 @@ html {
 .content {
     display: grid;
     align-items: center;
-    grid-template-rows: minmax(calc(100vh - #{$banner-height}), auto);
-    grid-template-rows: minmax(calc(100svh - #{$banner-height}), auto);
     grid-auto-rows: minmax(100vh, auto);
     grid-auto-rows: minmax(100svh, auto);
     margin-bottom: calc(-1 * var(--footer-height, #{$footer-height}));
@@ -38,10 +36,6 @@ html {
     padding: 10px $content-padding;
     scroll-snap-align: center;
     scroll-margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
-    &:first-child {
-        margin-top: $section-spacing; // gap below the banner
-        scroll-margin-top: $banner-height + $section-spacing;
-    }
     &:last-child {
         margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
         scroll-margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
@@ -50,8 +44,6 @@ html {
 
 @media (max-width: 500px) {
     .content {
-        grid-template-rows: minmax(calc(100vh - #{$banner-height-small}), auto);
-        grid-template-rows: minmax(calc(100svh - #{$banner-height-small}), auto);
         margin-bottom: calc(-1 * var(--footer-height, #{$footer-height-small}));
         &.container {
             max-width: calc(100% - #{2 * $panel-side-gap-small});
@@ -61,10 +53,6 @@ html {
         margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
         padding: 10px $content-padding-small;
         scroll-margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
-        &:first-child {
-            margin-top: $section-spacing-small;
-            scroll-margin-top: $banner-height-small + $section-spacing-small;
-        }
         &:last-child {
             margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
             scroll-margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
