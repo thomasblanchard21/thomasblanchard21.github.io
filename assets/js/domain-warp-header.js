@@ -30,6 +30,10 @@
  * Performance: low-end devices start at a lower resolution and frame rate,
  * and the resolution drops further if the frame rate actually reached is too
  * low; as a last resort the relief freezes on a still frame.
+ *
+ * Dark theme (<html data-theme="dark">, set by theme.js): the surface colors
+ * of CONFIG.dark replace the light ones, and a still frame is redrawn when
+ * the theme changes.
  */
 
 // Tweakable look. World units: `referenceHeight` CSS px span `scale` units.
@@ -64,6 +68,13 @@ const CONFIG = {
     albedo: [0.975, 0.985, 0.995],
     sunColor: [1.0, 0.99, 0.97],
     ambientColor: [0.90, 0.93, 0.96],
+    // Dark theme: these replace the values above (dark grey, almost black plaster)
+    dark: {
+        albedo: [0.15, 0.15, 0.155],
+        sunColor: [1.0, 0.98, 0.95],
+        ambientColor: [0.92, 0.93, 0.95],
+        sheen: 0.06,
+    },
     seed: null,             // [x, y] shifts the pattern; null picks a random one per page load
     seedRange: 20.0,        // random seeds fall in [0, seedRange); kept small for mediump GPUs
     frozenTime: 12.0,       // time used for the single frame under reduced motion
@@ -110,6 +121,13 @@ const PERF = Object.assign(
     { renderScale: CONFIG.renderScale, maxPixels: CONFIG.maxPixels, maxFps: CONFIG.maxFps },
     isLowEnd() ? CONFIG.lowEnd : {}
 );
+
+const DARK_LOOK = Object.assign({}, CONFIG, CONFIG.dark);
+
+// The look of the current theme: CONFIG, or CONFIG with the dark overrides.
+function currentLook() {
+    return document.documentElement.getAttribute("data-theme") === "dark" ? DARK_LOOK : CONFIG;
+}
 
 const SEED = CONFIG.seed || [Math.random() * CONFIG.seedRange, Math.random() * CONFIG.seedRange];
 
@@ -447,6 +465,7 @@ function createRenderer(canvas) {
     // floors.scroll: page scroll, in the same units.
     function render(time, mouse, floors) {
         const texel = worldH / height;
+        const look = currentLook();
 
         // Pass 1: heightfield into the texture (with margin).
         gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
@@ -494,16 +513,16 @@ function createRenderer(canvas) {
         gl.uniform1f(u.uOcclusion, CONFIG.occlusion);
         gl.uniform1f(u.uOcclusionFloor, CONFIG.occlusionFloor);
         gl.uniform1f(u.uShadowFloor, CONFIG.shadowFloor);
-        gl.uniform1f(u.uSheen, CONFIG.sheen);
+        gl.uniform1f(u.uSheen, look.sheen);
         gl.uniform1f(u.uSheenPower, CONFIG.sheenPower);
         gl.uniform1f(u.uVolume, CONFIG.volume);
         gl.uniform1f(u.uRingInner, CONFIG.ringInner);
         gl.uniform1f(u.uRingOuter, CONFIG.ringOuter);
         gl.uniform1f(u.uVolumeRadius, CONFIG.volumeRadius);
         gl.uniform1f(u.uLayerTint, CONFIG.layerTint);
-        gl.uniform3fv(u.uAlbedo, CONFIG.albedo);
-        gl.uniform3fv(u.uSunColor, CONFIG.sunColor);
-        gl.uniform3fv(u.uAmbientColor, CONFIG.ambientColor);
+        gl.uniform3fv(u.uAlbedo, look.albedo);
+        gl.uniform3fv(u.uSunColor, look.sunColor);
+        gl.uniform3fv(u.uAmbientColor, look.ambientColor);
         gl.drawArrays(gl.TRIANGLES, 0, 3);
     }
 
@@ -767,6 +786,15 @@ function mount(canvas) {
     });
     ro.observe(canvas);
 
+    // Theme switch: an animated relief picks up the new colors on its next
+    // frame; a still one is redrawn.
+    const mo = new MutationObserver(() => {
+        if (renderer && !frame && !document.hidden) {
+            drawStill();
+        }
+    });
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
     const onPointerMove = (e) => {
         // Mouse and pen only: a touch has no hover and would leave a stray dip.
         if (e.pointerType === "touch") {
@@ -837,6 +865,7 @@ function mount(canvas) {
         }
         io.disconnect();
         ro.disconnect();
+        mo.disconnect();
         document.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("scroll", onScroll);
         document.documentElement.removeEventListener("pointerleave", onPointerLeave);

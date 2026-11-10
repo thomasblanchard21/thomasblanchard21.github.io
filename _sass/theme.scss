@@ -1,0 +1,85 @@
+@import "vars";
+
+/*
+ * Light and dark themes
+ *
+ * The colors of both themes are in vars.scss ($theme-light, $theme-dark).
+ * They become CSS custom properties here; the dark ones apply when
+ * assets/js/theme.js sets <html data-theme="dark">. Without JS the page stays
+ * light and the switch stays hidden.
+ */
+
+:root {
+    @each $name, $value in $theme-light {
+        --#{$name}: #{$value};
+    }
+}
+
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    @each $name, $value in $theme-dark {
+        --#{$name}: #{$value};
+    }
+}
+
+// Switch in the top-right corner of the window: a moon in the light theme, a
+// sun in the dark one. It stays over the banner, then over the sticky bar.
+.theme-toggle {
+    position: fixed;
+    top: $theme-toggle-offset;
+    right: $theme-toggle-offset;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $theme-toggle-size;
+    height: $theme-toggle-size;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    color: $icon-color;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    &:hover {
+        color: $accent;
+    }
+    &:focus-visible {
+        outline: 2px solid $accent;
+        outline-offset: 2px;
+    }
+    &[hidden] {
+        display: none;
+    }
+    svg {
+        width: $theme-toggle-icon-size;
+        height: $theme-toggle-icon-size;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+    .theme-icon-sun {
+        display: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+:root[data-theme="dark"] .theme-toggle {
+    .theme-icon-moon {
+        display: none;
+    }
+    .theme-icon-sun {
+        display: block;
+    }
+}
+
+@media (max-width: 500px) {
+    .theme-toggle {
+        top: $theme-toggle-offset / 2;
+        right: $theme-toggle-offset / 2;
+    }
+}

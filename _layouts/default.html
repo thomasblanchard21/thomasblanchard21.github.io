@@ -23,6 +23,7 @@
     <meta name="description" content="{{ desc }}">
     <link href='https://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{{ "/css/main.css" | relative_url }}">
+    <script src="{{ "/assets/js/theme.js" | relative_url }}"></script>
     {% assign header_effect = site.header_effect %}
     {% if page.header_effect != nil %}
         {% assign header_effect = page.header_effect %}
@@ -62,6 +63,7 @@
     {% endif %}
 </head>
 <body>
+    {% include theme-toggle.html %}
     {% if header_effect %}
         <canvas class="relief-canvas" data-effect="domain-warp" aria-hidden="true"></canvas>
     {% endif %}
