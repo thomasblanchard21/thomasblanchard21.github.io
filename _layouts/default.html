@@ -21,7 +21,7 @@
         {% assign url = site.url | append: site.baseurl | append: page.url %}
     {% endif %}
     <meta name="description" content="{{ desc }}">
-    <link href='https://fonts.googleapis.com/css?family=Inconsolata:400,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=IBM+Plex+Sans:400,400i,600|IBM+Plex+Mono:400' rel='stylesheet' type='text/css'>
     <link rel="stylesheet" href="{{ "/css/main.css" | relative_url }}">
     <script src="{{ "/assets/js/theme.js" | relative_url }}"></script>
     {% assign header_effect = site.header_effect %}
@@ -33,6 +33,8 @@
     {% endif %}
     <script type="module" src="{{ "/assets/js/sticky-nav.js" | relative_url }}"></script>
     <script type="module" src="{{ "/assets/js/section-scroll.js" | relative_url }}"></script>
+    <script type="module" src="{{ "/assets/js/scroll-hint.js" | relative_url }}"></script>
+    <script type="module" src="{{ "/assets/js/site-menu.js" | relative_url }}"></script>
     {% if site.favicon %}
         <link rel="icon" type="image/ico" href="{{ site.favicon_location }}">
         <link rel="shortcut-icon" type="image/ico" href="{{ site.favicon_location }}">
@@ -64,23 +66,14 @@
 </head>
 <body>
     {% include theme-toggle.html %}
+    {% include site-menu.html %}
     {% if header_effect %}
         <canvas class="relief-canvas" data-effect="domain-warp" aria-hidden="true"></canvas>
     {% endif %}
     <div class="wrapper">
-        <header class="banner">
-            <div class="navbar container">
-                {% if site.ins_logo %}
-                    <img id="ins-logo" src="{{ site.ins_logo | relative_url }}" alt="Institute logo" />
-                {% endif %}
-                <a id="author-name" class="alignable pull-left" href="{{ "/#top" | relative_url }}">{{ site.title }}</a>
-                <ul id="navlist" class="alignable pull-right navbar-ul">
-                    {% include nav-items.html li_class="alignable pull-left nav-list" %}
-                </ul>
-            </div>
-        </header>
+        {% include hero.html %}
         <nav class="sticky-bar" aria-label="Sections">
-            <div class="sticky-bar-inner container">
+            <div class="sticky-bar-inner">
                 <a class="sticky-bar-name" href="{{ "/#top" | relative_url }}">{{ site.title }}</a>
                 <ul class="sticky-bar-links">
                     {% include nav-items.html li_class="sticky-bar-item" %}
@@ -89,7 +82,7 @@
         </nav>
         {% comment %}
             One dot per section on the right (see _sass/section-dots.scss). A
-            shortcut for the pointer only: the banner and the sticky bar hold
+            shortcut for the pointer only: the hero and the sticky bar hold
             the same links for keyboard and screen reader users.
         {% endcomment %}
         <nav class="section-dots" aria-hidden="true">

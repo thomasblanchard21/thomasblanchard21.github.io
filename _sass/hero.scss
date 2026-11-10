@@ -1,0 +1,165 @@
+@import "vars";
+
+/*
+ * Hero
+ *
+ * The first screen, over the relief (no background of its own): the name
+ * and tagline centered, and a quiet row of section links at the top right,
+ * ending just left of the theme switch, where the sticky bar's links end too
+ * (same height, same right edge, same spacing), so the bar
+ * takes over in place once the hero scrolls away. Centered at phone width,
+ * without JS (with JS, a menu button replaces them on small screens). It is a snap screen like the
+ * section panels (see panels.scss and assets/js/section-scroll.js).
+ *
+ * The scroll hint at the bottom is a pointer shortcut (the nav holds the
+ * same link for keyboard users); assets/js/scroll-hint.js shows it
+ * (.is-visible) after a few seconds without input, while the hero fills the
+ * window. Without JS it stays hidden.
+ */
+
+.hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    min-height: 100svh;
+    scroll-snap-align: start;
+    text-align: center;
+}
+
+.hero-inner {
+    width: 100%;
+}
+
+.hero-logo {
+    display: block;
+    max-height: 100px;
+    margin: 0 auto 24px;
+}
+
+.hero-name {
+    margin: 0;
+    font-size: $hero-name-size;
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: $title-color;
+}
+
+.hero-tagline {
+    margin: 14px 0 0;
+    font-size: $hero-tagline-size;
+    color: $muted-color;
+}
+
+.hero-top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: $sticky-bar-height;
+    padding: 0 $nav-inset-right 0 $nav-inset-left;
+}
+
+.hero-nav a {
+    color: $muted-color;
+    font-size: 14px;
+    &:hover {
+        color: $accent;
+        text-decoration: none;
+    }
+}
+
+.hero-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 4px $nav-gap;
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.scroll-hint {
+    position: absolute;
+    bottom: 28px;
+    left: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    transform: translateX(-50%);
+    color: $icon-color;
+    font-family: $font-mono;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.8s ease, visibility 0s linear 0.8s;
+    &.is-visible {
+        opacity: 1;
+        visibility: visible;
+        transition: opacity 0.8s ease;
+    }
+    &:hover {
+        color: $accent;
+        text-decoration: none;
+    }
+    svg {
+        width: 22px;
+        height: 22px;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        animation: scroll-hint-bob 2s ease-in-out infinite;
+    }
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+        &.is-visible {
+            transition: none;
+        }
+        svg {
+            animation: none;
+        }
+    }
+}
+
+@keyframes scroll-hint-bob {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(4px);
+    }
+}
+
+// Small screens: with JS, the menu button replaces the links (see
+// site-menu.scss). Without JS they stay, centered on phones.
+@media (max-width: $nav-collapse-width) {
+    .js .hero-top {
+        display: none;
+    }
+}
+
+@media (max-width: 500px) {
+    .hero-name {
+        font-size: $hero-name-size-small;
+    }
+    .hero-tagline {
+        font-size: $hero-tagline-size-small;
+    }
+    .hero-top {
+        justify-content: center;
+        padding: 8px $nav-inset-left;
+    }
+    .hero-nav {
+        justify-content: center;
+        gap: 2px 14px;
+    }
+}

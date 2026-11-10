@@ -3,8 +3,8 @@
 /*
  * One-page navigation
  *
- * The nav links scroll to the sections of index.md. Once the banner has
- * scrolled out of view, assets/js/sticky-nav.js shows a slim bar with the
+ * The nav links scroll to the sections of index.md. Once the hero has
+ * scrolled halfway out of view, assets/js/sticky-nav.js shows a slim bar with the
  * site name and the links at the top (.is-visible) and marks the link of the
  * section being read (.is-current). Without JS the bar stays hidden and the
  * links still jump to the sections.
@@ -25,13 +25,16 @@ html {
     z-index: 10;
     background-color: $sticky-bar-background;
     box-shadow: 0 1px 0 $bar-shadow;
+    // Slides down from the top as it fades in.
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.25s ease, visibility 0s linear 0.25s;
+    transform: translateY(-100%);
+    transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s linear 0.3s;
     &.is-visible {
         opacity: 1;
         visibility: visible;
-        transition: opacity 0.25s ease;
+        transform: none;
+        transition: opacity 0.3s ease, transform 0.3s ease;
     }
     @media (prefers-reduced-motion: reduce) {
         transition: none;
@@ -47,6 +50,9 @@ html {
     align-items: center;
     justify-content: space-between;
     min-height: $sticky-bar-height;
+    // Whole window width: the name at the left, the links ending just left of
+    // the theme switch, like the hero's links
+    padding: 0 $nav-inset-right 0 $nav-inset-left;
 }
 
 .sticky-bar-name {
@@ -56,35 +62,35 @@ html {
 }
 
 .sticky-bar-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px $nav-gap;
     margin: 0;
     padding: 0;
     list-style-type: none;
 }
 
-.sticky-bar-item {
-    display: inline;
-    margin: 0 5px 0 10px;
+.sticky-bar-links a {
+    color: $text-color;
+    &:hover {
+        color: $accent;
+        text-decoration: none;
+    }
+    &.is-current {
+        color: $accent;
+    }
 }
 
-.sticky-bar .is-current {
-    text-decoration: underline;
+// Small screens: the name alone, the links are in the menu (site-menu.scss).
+// The bar needs JS anyway, like the menu.
+@media (max-width: $nav-collapse-width) {
+    .sticky-bar-links {
+        display: none;
+    }
 }
 
 @media (max-width: 500px) {
-    .sticky-bar-inner {
-        justify-content: center;
-        padding: 6px 0;
-    }
     .sticky-bar-name {
         font-size: 17px;
-        margin-right: 0;
-    }
-    .sticky-bar-links {
-        width: 100%;
-        text-align: center;
-        font-size: 14px;
-    }
-    .sticky-bar-item {
-        margin: 0 2px;
     }
 }

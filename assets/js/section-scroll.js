@@ -1,8 +1,8 @@
 /*
  * Section scrolling
  *
- * Moves through the section panels of index.md (one per screen, see
- * _sass/panels.scss) with the mouse wheel, trackpad and keyboard. Inside a
+ * Moves through the hero and the section panels of index.md (one per screen,
+ * see _sass/hero.scss and _sass/panels.scss) with the mouse wheel, trackpad and keyboard. Inside a
  * section taller than the window, scrolling moves through it as usual. The
  * edge of a section pushes back: scrolling into it builds up a pressure that
  * leaks away over time, and the page moves on to the next section, landing
@@ -218,7 +218,7 @@ const footer = document.querySelector(".site-footer");
 if (footer && "ResizeObserver" in window) {
     measureFooter(footer);
 }
-const panels = Array.from(document.querySelectorAll(".content > section.panel"));
+const panels = Array.from(document.querySelectorAll(".hero, .content > section.panel"));
 if (panels.length > 1) {
     mount(panels);
 }

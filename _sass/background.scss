@@ -1,13 +1,13 @@
 @import "vars";
 
 /*
- * Page background relief and header banner
+ * Page background relief
  *
  * The background of the whole page is a static pale gradient; when the
  * header effect is on, assets/js/domain-warp-header.js draws a WebGL relief
  * into .relief-canvas, fixed behind the page, and fades it in (.is-ready)
- * once the first frame is rendered. The banner has a flat background on top
- * of it, so the relief only shows behind the sections.
+ * once the first frame is rendered. It shows across the hero, and around the
+ * floors it sinks under the sections.
  */
 
 body {
@@ -39,26 +39,4 @@ body {
 
 .wrapper {
     position: relative;
-}
-
-.banner {
-    display: flex;
-    align-items: center;
-    height: $banner-height;
-    background-color: $banner-background;
-}
-
-.banner .navbar {
-    width: 100%;
-    padding: 0;
-    display: flow-root;
-}
-
-@media (max-width: 500px) {
-    .banner {
-        height: $banner-height-small;
-    }
-    .banner .navbar {
-        padding: 0;
-    }
 }

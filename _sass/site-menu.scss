@@ -1,0 +1,143 @@
+@import "vars";
+
+/*
+ * Small-screen menu
+ *
+ * Below $nav-collapse-width the section links no longer fit on one row: a
+ * menu button (same style as the theme switch, in its place) opens a vertical
+ * list of the links, with the theme switch as its last row.
+ * assets/js/site-menu.js shows the button and opens the list (.is-open).
+ * Above that width nothing of it is shown; without JS the button stays
+ * hidden and the hero keeps its links (see hero.scss).
+ */
+
+.menu-toggle {
+    position: fixed;
+    top: $theme-toggle-top;
+    right: $theme-toggle-right;
+    z-index: 21;
+    @include icon-button;
+    .menu-icon-close {
+        display: none;
+    }
+    &[aria-expanded="true"] {
+        .menu-icon-open {
+            display: none;
+        }
+        .menu-icon-close {
+            display: block;
+        }
+    }
+    // Shown below $nav-collapse-width only (see below)
+    &,
+    &[hidden] {
+        display: none;
+    }
+}
+
+.site-menu {
+    display: none;
+}
+
+@media (max-width: $nav-collapse-width) {
+    .menu-toggle:not([hidden]) {
+        display: flex;
+    }
+    .js .site-menu {
+        position: fixed;
+        top: $sticky-bar-height;
+        right: $theme-toggle-right;
+        z-index: 21;
+        display: block;
+        min-width: $site-menu-width;
+        padding: 8px 0;
+        background-color: $surface;
+        border: 1px solid $border-color;
+        border-radius: 8px;
+        box-shadow: 0 8px 24px $menu-shadow;
+        // Hidden (also from the keyboard and screen readers) until opened
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-6px);
+        transition: opacity 0.2s ease, transform 0.2s ease, visibility 0s linear 0.2s;
+        &.is-open {
+            opacity: 1;
+            visibility: visible;
+            transform: none;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+        }
+        @media (prefers-reduced-motion: reduce) {
+            transition: none;
+            &.is-open {
+                transition: none;
+            }
+        }
+    }
+}
+
+.site-menu-list {
+    margin: 0;
+    padding: 0;
+    list-style-type: none;
+}
+
+.site-menu-list a,
+.site-menu-theme {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 20px;
+    color: $text-color;
+    font: inherit;
+    text-align: left;
+    &:hover {
+        color: $accent;
+        text-decoration: none;
+    }
+    &:focus-visible {
+        outline: 2px solid $accent;
+        outline-offset: -2px;
+    }
+}
+
+.site-menu-list a.is-current {
+    color: $accent;
+}
+
+.site-menu-theme {
+    margin-top: 8px;
+    padding-top: 12px;
+    border: 0;
+    border-top: 1px solid $border-color;
+    background: none;
+    color: $muted-color;
+    cursor: pointer;
+    &[hidden] {
+        display: none;
+    }
+    svg {
+        flex: none;
+        width: $theme-toggle-icon-size;
+        height: $theme-toggle-icon-size;
+        fill: none;
+        stroke: currentColor;
+        stroke-width: 1.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+    }
+}
+
+// Label of the theme row: the theme it switches to
+.theme-label-light {
+    display: none;
+}
+
+:root[data-theme="dark"] {
+    .theme-label-dark {
+        display: none;
+    }
+    .theme-label-light {
+        display: inline;
+    }
+}

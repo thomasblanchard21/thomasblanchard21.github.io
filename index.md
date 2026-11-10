@@ -4,7 +4,7 @@ layout: default
 
 <section class="panel" markdown="1">
 
-## About Me
+## About Me {#about}
 
 <!-- TODO(thomas): replace sherlock.jpg with your own photo -->
 <img class="profile-picture" src="{{ "/sherlock.jpg" | relative_url }}" alt="Photo of Thomas Blanchard">

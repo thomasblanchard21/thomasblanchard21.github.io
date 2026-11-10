@@ -1,0 +1,25 @@
+{% comment %}
+    The hero: a full first screen over the relief, with a quiet row of section
+    links at the top right (against the theme switch) and the name and tagline in the middle (see _sass/hero.scss). The scroll hint at the
+    bottom fades in after a few seconds without input (assets/js/scroll-hint.js).
+{% endcomment %}
+<header class="hero" id="top">
+    <nav class="hero-top" aria-label="Sections">
+        <ul class="hero-nav">
+            {% include nav-items.html li_class="hero-nav-item" %}
+        </ul>
+    </nav>
+    <div class="hero-inner container">
+        {% if site.ins_logo %}
+            <img class="hero-logo" src="{{ site.ins_logo | relative_url }}" alt="Institute logo">
+        {% endif %}
+        <h1 class="hero-name">{{ site.title }}</h1>
+        {% if site.tagline %}
+            <p class="hero-tagline">{{ site.tagline }}</p>
+        {% endif %}
+    </div>
+    <a class="scroll-hint" href="{{ "/#about" | relative_url }}" tabindex="-1" aria-hidden="true">
+        <span class="scroll-hint-label">Scroll</span>
+        <svg viewBox="0 0 24 24" focusable="false"><path d="M6 9.5l6 6 6-6"/></svg>
+    </a>
+</header>

@@ -11,7 +11,9 @@ html {
 }
 body {
     margin: 0;
-    font-family: "Inconsolata";
+    font-family: $font-sans;
+    font-size: $font-size;
+    line-height: $line-height;
     color: $text-color;
     height: 100%;
 }
@@ -27,40 +29,6 @@ hr {
     height: 0;
     border-top: 1px solid $rule-dark;
     border-bottom: 1px solid $rule-light;
-}
-
-/*
- * Navbar
- */
-
-#author-name {
-    font-size: 30px;
-    color: $title-color;
-    display: inline-block;
-}
-.navbar {
-    padding: 50px 0 50px 0;
-}
-.navbar-ul {
-    display: inline-block;
-    margin: 0;
-    padding: 5px 0 5px 0;
-    margin-left: 20px;
-}
-.nav-list {
-    list-style-type: none;
-    margin: 0 5px 0 10px;
-}
-.alignable {
-    display: inline-block;
-}
-.pull-left {
-    @extend .alignable;
-    float: left;
-}
-.pull-right {
-    @extend .alignable;
-    float: right;
 }
 
 /* Divs */
@@ -84,18 +52,17 @@ hr {
         margin: 0 auto;
         padding: 16px 0;
     }
+    font-family: $font-mono;
+    color: $muted-color;
     a {
         color: $footer-color;
+        &:hover {
+            color: $accent;
+        }
     }
 }
-
-/* Institute Image */
-
-#ins-logo {
-	margin: auto;
-	display: block;
-	max-height: 100px;
-	text-align: center;
+code, pre, kbd, samp {
+    font-family: $font-mono;
 }
 
 /* Mobile */
@@ -107,44 +74,12 @@ hr {
     }
 }
 
-@media (max-width: 650px) {
-    .navbar-ul {
-        margin-top: 5px;
-    }
-}
-
-@media (max-width: 500px) {
-	.navbar {
-		text-align: center;
-		padding: 50px 0px 0px 0px;
-	}
-	#author-name {
-		width: 100%;
-		float: none;
-	}
-	#navlist {
-		padding: 10px 0 10px 0;
-		margin: 0;
-		display: block;
-		float: none;
-		text-align: center;
-		width: 100%;
-	}
-	#navlist li.alignable {
-		display: inline-block;
-	}
-	#navlist li.pull-left {
-		float: none;
-	}
-	#navlist li.nav-list {
-		margin: 0;
-	}
-}
-
 @import "theme";
 @import "typography";
 @import "tables";
-@import "banner";
+@import "background";
+@import "hero";
 @import "sticky-bar";
 @import "panels";
 @import "section-dots";
+@import "site-menu";
