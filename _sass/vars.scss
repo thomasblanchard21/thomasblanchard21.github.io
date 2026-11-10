@@ -69,12 +69,7 @@ $footer-color: $muted-color; // footer links (accent on hover)
 // Theme switch in the top-right corner (see _sass/theme.scss)
 $theme-toggle-size: 32px;      // clickable area
 $theme-toggle-icon-size: 18px;
-$theme-toggle-offset: 12px;    // gap to the window corner
-// The top row of links (hero, then sticky bar) spans the whole window: the
-// links end just left of the theme switch, the bar's name starts at the left
-$nav-inset-right: $theme-toggle-offset + $theme-toggle-size + 12px;
-$nav-inset-left: 24px;
-$nav-gap: clamp(16px, 2.6vw, 40px); // between links, grows with the window
+$theme-toggle-offset: 12px;    // at phone width, the switch sits half this from the corner
 
 // Hero: the full first screen with the name (see _sass/hero.scss)
 $hero-name-size: 64px;
@@ -96,6 +91,16 @@ $content-padding-small: 16px;
 $sticky-bar-height: 48px;
 $sticky-bar-height-small: 80px; // the bar wraps at phone width
 $sticky-bar-background: $surface; // flat and opaque
+
+// The top row (hero links, then the sticky bar) spans the whole window: the
+// bar's name starts $nav-inset-left from the left edge, and the theme switch
+// closes the row of links as if it were one more, $nav-gap after the last link
+// and with its icon $nav-inset-left from the right edge.
+$nav-inset-left: 24px;
+$nav-gap: clamp(16px, 2.6vw, 40px); // between links, grows with the window
+$theme-toggle-top: ($sticky-bar-height - $theme-toggle-size) / 2; // centered on the row
+$theme-toggle-right: $nav-inset-left - ($theme-toggle-size - $theme-toggle-icon-size) / 2;
+$nav-inset-right: calc(#{$nav-inset-left + $theme-toggle-icon-size} + #{$nav-gap});
 
 // Column of dots on the right, one per section (see _sass/section-dots.scss)
 $section-dot-size: 9px;
