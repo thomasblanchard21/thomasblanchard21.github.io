@@ -4,8 +4,10 @@
  * Hero
  *
  * The first screen, over the relief (no background of its own): the name
- * and tagline centered, and a quiet row of section links along the top, at
- * the height of the sticky bar that takes over once the hero scrolls away. It is a snap screen like the
+ * and tagline centered, and a quiet row of section links at the top right,
+ * where the sticky bar's links are (same height, same right edge), so the bar
+ * takes over in place once the hero scrolls away. Centered at phone width,
+ * like the bar. It is a snap screen like the
  * section panels (see panels.scss and assets/js/section-scroll.js).
  *
  * The scroll hint at the bottom is a pointer shortcut (the nav holds the
@@ -56,10 +58,8 @@
     right: 0;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-end;
     min-height: $sticky-bar-height;
-    // Clear of the theme switch in the corner
-    padding: 0 ($theme-toggle-offset + $theme-toggle-size + 8px);
 }
 
 .hero-nav a {
@@ -74,10 +74,10 @@
 .hero-nav {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: 4px 24px;
+    justify-content: flex-end;
+    gap: 4px 20px;
     margin: 0;
-    padding: 0;
+    padding: 0 5px 0 0; // the sticky bar's last link stops 5px short of the edge too
     list-style-type: none;
 }
 
@@ -145,9 +145,14 @@
         font-size: $hero-tagline-size-small;
     }
     .hero-top {
-        padding: 8px ($theme-toggle-offset / 2 + $theme-toggle-size + 4px);
+        justify-content: center;
+        max-width: none;
+        // Clear of the theme switch in the corner
+        padding: 8px ($theme-toggle-offset / 2 + $theme-toggle-size + 6px);
     }
     .hero-nav {
+        justify-content: center;
+        padding: 0;
         gap: 2px 14px;
     }
 }
