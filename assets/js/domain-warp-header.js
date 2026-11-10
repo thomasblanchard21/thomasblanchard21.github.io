@@ -29,9 +29,7 @@
  *
  * Performance: low-end devices start at a lower resolution and frame rate,
  * and the resolution drops further if the frame rate actually reached is too
- * low; as a last resort the relief freezes on a still frame. The
- * .relief-toggle switch lets the visitor turn the animation off or on (the
- * choice is kept in localStorage).
+ * low; as a last resort the relief freezes on a still frame.
  */
 
 // Tweakable look. World units: `referenceHeight` CSS px span `scale` units.
@@ -112,29 +110,6 @@ const PERF = Object.assign(
     { renderScale: CONFIG.renderScale, maxPixels: CONFIG.maxPixels, maxFps: CONFIG.maxFps },
     isLowEnd() ? CONFIG.lowEnd : {}
 );
-
-// The visitor's choice to pause the animation, kept across visits.
-const PAUSE_KEY = "relief-paused";
-
-function loadPaused() {
-    try {
-        return localStorage.getItem(PAUSE_KEY) === "1";
-    } catch (err) {
-        return false;
-    }
-}
-
-function savePaused(paused) {
-    try {
-        if (paused) {
-            localStorage.setItem(PAUSE_KEY, "1");
-        } else {
-            localStorage.removeItem(PAUSE_KEY);
-        }
-    } catch (err) {
-        // Storage blocked: the choice lasts for this page view only.
-    }
-}
 
 const SEED = CONFIG.seed || [Math.random() * CONFIG.seedRange, Math.random() * CONFIG.seedRange];
 
@@ -546,22 +521,19 @@ function createRenderer(canvas) {
     return { gl, resize, render, dispose };
 }
 
-function mount(canvas, toggle) {
+function mount(canvas) {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     let renderer = null;
     let frame = 0;
     let lastDraw = -Infinity;
     let onScreen = true;
-    // Animation clock in ms; it only runs while the relief is animated, so a
-    // pause resumes where it stopped.
+    // Animation clock in ms; it only runs while the relief is animated, so it
+    // resumes where it stopped (tab hidden, canvas off-screen).
     let elapsed = 0;
     let size = [0, 0, 0];
-    // Paused by the visitor (toggle button), or because the device is too slow.
-    let paused = loadPaused();
+    // Frozen on a still frame because the device is too slow.
     let tooSlow = false;
-    // Off once the visitor plays the animation again after it was found too slow.
-    let adaptive = true;
     // Adaptive quality: index into CONFIG.qualitySteps, and the current measurement.
     let quality = 0;
     let sampleCount = 0;
@@ -646,7 +618,7 @@ function mount(canvas, toggle) {
         canvas.classList.add("is-ready");
     }
 
-    // Still frame (paused, too slow, or reduced motion): no hover dip, since
+    // Still frame (too slow, or reduced motion): no hover dip, since
     // it would need redrawing as the cursor moves.
     function drawStill() {
         pointer.inside = false;
@@ -662,9 +634,6 @@ function mount(canvas, toggle) {
 
     // interval: ms since the previous drawn frame.
     function measure(interval) {
-        if (!adaptive) {
-            return;
-        }
         sampleCount++;
         if (sampleCount <= 0) {
             return;
@@ -682,7 +651,6 @@ function mount(canvas, toggle) {
             quality++;
         } else {
             tooSlow = true;
-            syncToggle();
         }
     }
 
@@ -733,38 +701,12 @@ function mount(canvas, toggle) {
     }
 
     function isFrozen() {
-        return reducedMotion.matches || paused || tooSlow;
+        return reducedMotion.matches || tooSlow;
     }
 
     function shouldAnimate() {
         return renderer && onScreen && !document.hidden && !isFrozen();
     }
-
-    // The button is offered whenever the relief could move: not without
-    // WebGL, nor under reduced motion where it stays still anyway.
-    function syncToggle() {
-        if (!toggle) {
-            return;
-        }
-        toggle.hidden = !renderer || reducedMotion.matches;
-        toggle.setAttribute("aria-checked", String(!(paused || tooSlow)));
-    }
-
-    const onToggle = () => {
-        if (paused || tooSlow) {
-            if (tooSlow) {
-                // Playing again overrides the slowness check for this page view.
-                tooSlow = false;
-                adaptive = false;
-            }
-            paused = false;
-        } else {
-            paused = true;
-        }
-        savePaused(paused);
-        syncToggle();
-        update();
-    };
 
     function update() {
         if (!renderer) {
@@ -779,7 +721,7 @@ function mount(canvas, toggle) {
                 cancelAnimationFrame(frame);
                 frame = 0;
             }
-            // Paused, too slow or reduced motion: keep one still frame, redrawn on resize.
+            // Too slow or reduced motion: keep one still frame, redrawn on resize.
             if (isFrozen()) {
                 drawStill();
             }
@@ -794,7 +736,6 @@ function mount(canvas, toggle) {
         }
         size = [0, 0, 0];
         restartMeasure();
-        syncToggle();
         if (!renderer) {
             canvas.classList.remove("is-ready");
             return;
@@ -854,10 +795,7 @@ function mount(canvas, toggle) {
     };
 
     const onVisibility = () => update();
-    const onMotionChange = () => {
-        syncToggle();
-        update();
-    };
+    const onMotionChange = () => update();
     const onContextLost = (e) => {
         e.preventDefault();
         if (frame) {
@@ -866,7 +804,6 @@ function mount(canvas, toggle) {
         }
         renderer = null;
         canvas.classList.remove("is-ready");
-        syncToggle();
     };
     const onContextRestored = () => start();
     const onPageHide = (e) => {
@@ -891,9 +828,6 @@ function mount(canvas, toggle) {
     canvas.addEventListener("webglcontextrestored", onContextRestored);
     window.addEventListener("pagehide", onPageHide);
     window.addEventListener("pageshow", onPageShow);
-    if (toggle) {
-        toggle.addEventListener("click", onToggle);
-    }
 
     function teardown() {
         stop();
@@ -912,10 +846,6 @@ function mount(canvas, toggle) {
         canvas.removeEventListener("webglcontextrestored", onContextRestored);
         window.removeEventListener("pagehide", onPageHide);
         window.removeEventListener("pageshow", onPageShow);
-        if (toggle) {
-            toggle.removeEventListener("click", onToggle);
-            toggle.hidden = true;
-        }
         canvas.classList.remove("is-ready");
     }
 
@@ -925,5 +855,5 @@ function mount(canvas, toggle) {
 
 const canvas = document.querySelector('canvas[data-effect="domain-warp"]');
 if (canvas && "IntersectionObserver" in window && "ResizeObserver" in window) {
-    mount(canvas, document.querySelector(".relief-toggle"));
+    mount(canvas);
 }

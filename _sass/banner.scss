@@ -37,71 +37,6 @@ body {
     }
 }
 
-// Switch turning the relief animation on/off, in the top-right corner of the
-// page (it scrolls away with the banner). assets/js/domain-warp-header.js
-// shows it; it stays hidden without JS/WebGL and under reduced motion.
-.relief-toggle {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    z-index: 5;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 4px 6px;
-    border: 0;
-    border-radius: 4px;
-    background: none;
-    color: $relief-toggle-color;
-    font: inherit;
-    font-size: 14px;
-    cursor: pointer;
-    &:focus-visible {
-        outline: 2px solid $accent;
-        outline-offset: 2px;
-    }
-    &[hidden] {
-        display: none;
-    }
-}
-
-.relief-toggle-track {
-    position: relative;
-    width: $relief-toggle-width;
-    height: $relief-toggle-height;
-    border-radius: $relief-toggle-height / 2;
-    background-color: $relief-toggle-off;
-    transition: background-color 0.2s ease;
-}
-
-.relief-toggle-thumb {
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: $relief-toggle-height - 4px;
-    height: $relief-toggle-height - 4px;
-    border-radius: 50%;
-    background-color: white;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
-    transition: transform 0.2s ease;
-}
-
-.relief-toggle[aria-checked="true"] {
-    .relief-toggle-track {
-        background-color: $accent;
-    }
-    .relief-toggle-thumb {
-        transform: translateX($relief-toggle-width - $relief-toggle-height);
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .relief-toggle-track,
-    .relief-toggle-thumb {
-        transition: none;
-    }
-}
-
 .wrapper {
     position: relative;
 }
@@ -125,10 +60,5 @@ body {
     }
     .banner .navbar {
         padding: 0;
-    }
-    .relief-toggle {
-        top: 8px;
-        right: 8px;
-        font-size: 13px;
     }
 }
