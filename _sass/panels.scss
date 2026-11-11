@@ -7,8 +7,10 @@
  * card of its own: the sections sit on the plain background of .page-body
  * (see background.scss); the relief is behind the hero only.
  *
- * One section per screen: each panel is centered in a grid row at least as
- * tall as the window. The page scrolls natively, without snapping; a link to
+ * One section per screen: each panel fills a grid row at least as tall as
+ * the window, its content centered in it (align-content; at the top in
+ * browsers without it), and a separator line runs along the top of every
+ * panel but the first (placeholder). The page scrolls natively, without snapping; a link to
  * a section brings its heading just below the sticky bar. The hero
  * (hero.scss) is a screen of its own before them, and the footer is pulled up
  * over the bottom of the last one (--footer-height, measured by
@@ -22,17 +24,27 @@ html {
 
 .content {
     display: grid;
-    align-items: center;
     grid-auto-rows: minmax(100vh, auto);
     grid-auto-rows: minmax(100svh, auto);
     margin-bottom: calc(-1 * var(--footer-height, #{$footer-height}));
 }
 
 .panel {
-    margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
-    padding: 10px $content-padding;
+    position: relative;
+    align-content: center;
+    // Clear of the sticky bar at the top, and of the separators.
+    padding: $sticky-bar-height + $section-spacing + 10px $content-padding $section-spacing + 10px;
     &:last-child {
-        margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
+        padding-bottom: calc(#{$section-spacing + 10px} + var(--footer-height, #{$footer-height}));
+    }
+    // Separator between two sections, in line with the text.
+    & + &::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: $content-padding;
+        right: $content-padding;
+        border-top: $section-separator-width solid $section-separator-color;
     }
     // Section links land with the heading clear of the sticky bar.
     h2[id] {
@@ -48,10 +60,13 @@ html {
         }
     }
     .panel {
-        margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
-        padding: 10px $content-padding-small;
+        padding: $sticky-bar-height-small + $section-spacing-small + 10px $content-padding-small $section-spacing-small + 10px;
         &:last-child {
-            margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
+            padding-bottom: calc(#{$section-spacing-small + 10px} + var(--footer-height, #{$footer-height-small}));
+        }
+        & + &::before {
+            left: $content-padding-small;
+            right: $content-padding-small;
         }
         h2[id] {
             scroll-margin-top: $sticky-bar-height-small + $section-spacing-small;

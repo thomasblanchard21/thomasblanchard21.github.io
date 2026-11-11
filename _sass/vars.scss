@@ -29,6 +29,7 @@ $theme-light: (
     relief-fallback-light: #f4f2ee,
     relief-fallback-dark: #dcd8d2,
     page: #f4f2ee,               // plain background of the page after the hero
+    separator: #cdc8c1,          // line between two sections
 );
 $theme-dark: (
     accent: #FF8A3D,             // mandarin, the same hue lifted for dark
@@ -47,6 +48,7 @@ $theme-dark: (
     relief-fallback-light: #22201e,
     relief-fallback-dark: #161514,
     page: #1c1b19,
+    separator: #4a4743,
 );
 
 $accent: var(--accent);
@@ -120,6 +122,9 @@ $section-dot-color: var(--dot);
 $section-dots-offset: 12px;   // gap between the dots and the window edge
 $section-dots-offset-small: 2px;
 // Gap around the section panels (one per screen, see _sass/panels.scss)
+// Line between two sections (placeholder, see _sass/panels.scss)
+$section-separator-color: var(--separator);
+$section-separator-width: 1px;
 $section-spacing: 40px;
 $section-spacing-small: 48px; // phone width: like the side gap below, so the relief shows between panels
 // Phone width: gap between the panels and the sides of the window, wide
