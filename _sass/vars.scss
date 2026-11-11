@@ -83,6 +83,10 @@ $hero-tagline-size-small: 17px;
 // JS/WebGL, and under the canvas while it loads
 $relief-fallback-light: var(--relief-fallback-light);
 $relief-fallback-dark: var(--relief-fallback-dark);
+// Relief canvas margin above and below the window, as a fraction of its
+// height: room for the page to scroll before the canvas is recentered.
+// Larger = fewer exposed edges on fast flings, but more pixels to draw.
+$relief-overscan: 0.3;
 $footer-background: $surface; // solid full-width band at the bottom of the page
 // Footer height before assets/js/footer-height.js measures it (or without JS)
 $footer-height: 65px;

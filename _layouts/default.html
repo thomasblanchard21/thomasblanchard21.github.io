@@ -68,7 +68,9 @@
     {% include theme-toggle.html %}
     {% include site-menu.html %}
     {% if header_effect %}
-        <canvas class="relief-canvas" data-effect="domain-warp" aria-hidden="true"></canvas>
+        <div class="relief-layer" aria-hidden="true">
+            <canvas class="relief-canvas" data-effect="domain-warp" aria-hidden="true"></canvas>
+        </div>
     {% endif %}
     <div class="wrapper">
         {% include hero.html %}
