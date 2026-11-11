@@ -1,16 +1,17 @@
 /*
  * One-page navigation
  *
- * Shows the slim .sticky-bar once the hero is halfway out of view (and hides
- * it again when the hero comes back), and
+ * Shows the slim .sticky-bar once the hero is halfway out of view, and the
+ * .section-dots once a section after the hero is the one on screen (hiding
+ * them again when the hero comes back), and
  * marks the bar link, the menu link and the dot of the section on screen (.is-current,
  * aria-current). A section is the panel holding an <h2 id>; the hero is the
  * top of the page ("#top").
  * Scrolling to the sections is native (smooth under _sass/sticky-bar.scss).
- * Without JS the bar stays hidden.
+ * Without JS the bar stays hidden, and the dots stay shown.
  */
 
-function mount(bar, hero) {
+function mount(bar, hero, dots) {
     // Section headings, in page order (ids set in index.md).
     const sections = Array.from(document.querySelectorAll(".content h2[id]"));
     const links = Array.from(document.querySelectorAll(
@@ -44,6 +45,9 @@ function mount(bar, hero) {
         frame = 0;
         bar.classList.toggle("is-visible", hero.getBoundingClientRect().bottom <= window.innerHeight / 2);
         const id = currentId();
+        if (dots) {
+            dots.classList.toggle("is-visible", id !== "top");
+        }
         if (id === current) {
             return;
         }
@@ -73,5 +77,5 @@ function mount(bar, hero) {
 const bar = document.querySelector(".sticky-bar");
 const hero = document.querySelector(".hero");
 if (bar && hero) {
-    mount(bar, hero);
+    mount(bar, hero, document.querySelector(".section-dots"));
 }

@@ -3,10 +3,11 @@
 /*
  * Section dots
  *
- * A column of dots on the right, one per section, in place of the page
- * scrollbar (hidden here). The dot of the section on screen is filled
- * (.is-current, set by assets/js/sticky-nav.js); hovering a dot shows the
- * section name next to it.
+ * A column of dots on the right, one per section after the hero, in place of
+ * the page scrollbar (hidden here). Over the hero they are hidden: they fade
+ * in once the first section is the one on screen (.is-visible, set by
+ * assets/js/sticky-nav.js; always shown without JS). The dot of the section on screen is filled (.is-current,
+ * also from sticky-nav.js); hovering a dot shows the section name next to it.
  */
 
 html {
@@ -22,6 +23,12 @@ html {
     right: $section-dots-offset;
     z-index: 15;
     transform: translateY(-50%);
+    transition: opacity 0.3s ease, visibility 0s linear 0s;
+    .js &:not(.is-visible) {
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0s linear 0.3s;
+    }
     ul {
         margin: 0;
         padding: 0;
@@ -54,6 +61,8 @@ html {
         }
     }
     @media (prefers-reduced-motion: reduce) {
+        &,
+        .js &:not(.is-visible),
         a::before {
             transition: none;
         }

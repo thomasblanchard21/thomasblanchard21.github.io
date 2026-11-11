@@ -81,14 +81,15 @@
             </div>
         </nav>
         {% comment %}
-            One dot per section on the right (see _sass/section-dots.scss). A
-            shortcut for the pointer only: the hero and the sticky bar hold
+            One dot per section on the right (see _sass/section-dots.scss),
+            not counting the hero ("/#top"); they show up from the first section on.
+            A shortcut for the pointer only: the hero and the sticky bar hold
             the same links for keyboard and screen reader users.
         {% endcomment %}
         <nav class="section-dots" aria-hidden="true">
             <ul>
                 {% for x in site.nav %}
-                    {% unless x.link contains "://" %}
+                    {% unless x.link contains "://" or x.link == "/#top" %}
                         <li><a href="{{ x.link | relative_url }}" tabindex="-1"><span class="section-dot-label">{{ x.name }}</span></a></li>
                     {% endunless %}
                 {% endfor %}
