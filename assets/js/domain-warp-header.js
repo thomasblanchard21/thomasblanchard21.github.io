@@ -823,6 +823,16 @@ function mount(canvas) {
         });
     };
 
+    // section-scroll.js starts animating the page: run each frame after its
+    // step, so the relief is drawn at the scroll position of that frame
+    // instead of the previous one (frame callbacks run in request order).
+    const onSectionScroll = () => {
+        if (frame) {
+            cancelAnimationFrame(frame);
+            frame = requestAnimationFrame(tick);
+        }
+    };
+
     const onVisibility = () => update();
     const onMotionChange = () => update();
     const onContextLost = (e) => {
@@ -850,6 +860,7 @@ function mount(canvas) {
 
     document.addEventListener("pointermove", onPointerMove);
     window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("section-scroll:start", onSectionScroll);
     document.documentElement.addEventListener("pointerleave", onPointerLeave);
     document.addEventListener("visibilitychange", onVisibility);
     reducedMotion.addEventListener("change", onMotionChange);
@@ -869,6 +880,7 @@ function mount(canvas) {
         mo.disconnect();
         document.removeEventListener("pointermove", onPointerMove);
         window.removeEventListener("scroll", onScroll);
+        document.removeEventListener("section-scroll:start", onSectionScroll);
         document.documentElement.removeEventListener("pointerleave", onPointerLeave);
         document.removeEventListener("visibilitychange", onVisibility);
         reducedMotion.removeEventListener("change", onMotionChange);
