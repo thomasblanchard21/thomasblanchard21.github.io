@@ -25,7 +25,11 @@ body {
     top: 0;
     left: 0;
     width: 100%;
-    height: 100%;
+    // The largest window height, not the current one: a phone's address bar
+    // collapsing or coming back then doesn't resize the canvas, which would
+    // shift the relief (drawn from its bottom edge).
+    height: 100vh;
+    height: 100lvh;
     display: block;
     pointer-events: none;
     opacity: 0;

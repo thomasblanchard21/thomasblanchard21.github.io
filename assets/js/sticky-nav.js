@@ -8,6 +8,10 @@
  * aria-current). A section is the panel holding an <h2 id>; the hero is the
  * top of the page ("#top").
  * Scrolling to the sections is native (smooth under _sass/sticky-bar.scss).
+ * As the page scrolls, the URL follows the section on screen (#about, none
+ * for the hero), without adding history entries, so that a reload comes back
+ * to it rather than to the last link clicked. Not before the first scroll:
+ * the browser may not have jumped to the URL's section yet.
  * Without JS the bar stays hidden, and the dots stay shown.
  */
 
@@ -22,6 +26,20 @@ function mount(bar, hero, dots) {
     });
     let frame = 0;
     let current = null;
+    let scrolled = false;   // the page has scrolled since it loaded
+
+    // URL of the section on screen, kept in place (no history entry).
+    function syncHash(id) {
+        const hash = id === "top" ? "" : "#" + id;
+        if (location.hash === hash) {
+            return;
+        }
+        try {
+            history.replaceState(history.state, "", location.pathname + location.search + hash);
+        } catch (err) {
+            // Too many calls in a short time (Safari): the next change catches up.
+        }
+    }
 
     function currentId() {
         const doc = document.documentElement;
@@ -48,6 +66,9 @@ function mount(bar, hero, dots) {
         if (dots) {
             dots.classList.toggle("is-visible", id !== "top");
         }
+        if (scrolled) {
+            syncHash(id);
+        }
         if (id === current) {
             return;
         }
@@ -69,7 +90,10 @@ function mount(bar, hero, dots) {
         }
     }
 
-    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("scroll", () => {
+        scrolled = true;
+        schedule();
+    }, { passive: true });
     window.addEventListener("resize", schedule);
     update();
 }
