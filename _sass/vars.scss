@@ -84,7 +84,7 @@ $hero-tagline-size-small: 17px;
 $relief-fallback-light: var(--relief-fallback-light);
 $relief-fallback-dark: var(--relief-fallback-dark);
 $footer-background: $surface; // solid full-width band at the bottom of the page
-// Footer height before assets/js/section-scroll.js measures it (or without JS)
+// Footer height before assets/js/footer-height.js measures it (or without JS)
 $footer-height: 65px;
 $footer-height-small: 100px; // the footer wraps at phone width
 $content-padding: 30px;

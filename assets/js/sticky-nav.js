@@ -6,8 +6,8 @@
  * marks the bar link, the menu link and the dot of the section on screen (.is-current,
  * aria-current). A section is the panel holding an <h2 id>; the hero is the
  * top of the page ("#top").
- * Scrolling between sections is in section-scroll.js (plain CSS snapping
- * without JS, see _sass/panels.scss). Without JS the bar stays hidden.
+ * Scrolling to the sections is native (smooth under _sass/sticky-bar.scss).
+ * Without JS the bar stays hidden.
  */
 
 function mount(bar, hero) {
