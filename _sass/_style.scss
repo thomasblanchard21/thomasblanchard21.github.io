@@ -15,9 +15,7 @@ body {
     font-size: $font-size;
     line-height: $line-height;
     color: $text-color;
-    // At least the window, and as tall as the page: the relief layer
-    // (background.scss) spans it.
-    min-height: 100%;
+    height: 100%;
 }
 a {
     text-decoration: none;

@@ -11,7 +11,7 @@
 // One palette in two lights: warm neutrals (off-white plaster and ink, or
 // graphite and off-white), and a single orange accent, reserved for links in
 // the text, hovers and the current section. Text colors keep at least 4.5:1
-// against the relief floors the sections sit on.
+// against the plain page background the sections sit on.
 $theme-light: (
     accent: #B23A0A,             // burnt orange, 4.8:1 on the relief floors
     text: #1c1b19,
@@ -28,6 +28,7 @@ $theme-light: (
     dot: #1c1b19,                // section dots on the right
     relief-fallback-light: #f4f2ee,
     relief-fallback-dark: #dcd8d2,
+    page: #f4f2ee,               // plain background of the page after the hero
 );
 $theme-dark: (
     accent: #FF8A3D,             // mandarin, the same hue lifted for dark
@@ -45,6 +46,7 @@ $theme-dark: (
     dot: #e6e3de,
     relief-fallback-light: #22201e,
     relief-fallback-dark: #161514,
+    page: #1c1b19,
 );
 
 $accent: var(--accent);
@@ -83,10 +85,7 @@ $hero-tagline-size-small: 17px;
 // JS/WebGL, and under the canvas while it loads
 $relief-fallback-light: var(--relief-fallback-light);
 $relief-fallback-dark: var(--relief-fallback-dark);
-// Relief canvas margin above and below the window, as a fraction of its
-// height: room for the page to scroll before the canvas is recentered.
-// Larger = fewer exposed edges on fast flings, but more pixels to draw.
-$relief-overscan: 0.3;
+$page-background: var(--page); // sections and footer, over the relief (background.scss)
 $footer-background: $surface; // solid full-width band at the bottom of the page
 // Footer height before assets/js/footer-height.js measures it (or without JS)
 $footer-height: 65px;

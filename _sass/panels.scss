@@ -4,9 +4,8 @@
  * Section panels
  *
  * Each section of index.md is wrapped in a <section class="panel">. It has no
- * card of its own: assets/js/domain-warp-header.js sinks a flat floor into the
- * relief under it, which keeps the text readable. Without the relief (no JS or
- * WebGL), the text sits on the pale fallback background (see background.scss).
+ * card of its own: the sections sit on the plain background of .page-body
+ * (see background.scss); the relief is behind the hero only.
  *
  * One section per screen: each panel is centered in a grid row at least as
  * tall as the window. The page scrolls natively, without snapping; a link to
