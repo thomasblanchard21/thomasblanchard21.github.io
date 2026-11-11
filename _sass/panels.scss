@@ -11,7 +11,7 @@
  * One section per screen: each panel is centered in a grid row at least as
  * tall as the window, and the page snaps from one row to the next when
  * scrolled (CSS scroll snap, smooth under the sticky-bar.scss scroll-behavior;
- * assets/js/section-scroll.js takes over the wheel, keyboard, touch and section links, so that the
+ * assets/js/section-scroll.js replaces it with JS for the wheel, keyboard, touch and section links, so that the
  * edge of a section resists a gentle scroll). Each panel's scroll margins match its margins, so its snap area,
  * centered on the window, is the whole row. The hero (hero.scss) is a screen
  * of its own before them, and the footer is pulled up over the bottom of the last one
@@ -24,6 +24,11 @@ html {
     // No pull-to-refresh or bounce past the ends (section-scroll.js also
     // handles touch itself; this covers a zoomed-in page and no JS).
     overscroll-behavior-y: none;
+    // section-scroll.js does the snapping itself (Safari's own re-snapping
+    // would undo its scrolls).
+    &.section-scroll {
+        scroll-snap-type: none;
+    }
 }
 
 .content {

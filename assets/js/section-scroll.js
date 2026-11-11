@@ -25,13 +25,15 @@
  * settles back (inside a tall section, a flick coasts on for COAST ms).
  * This also stops the browser's pull-to-refresh. Sideways drags, pinches and
  * a zoomed-in page are left to the browser.
- * Clicks on links to a section are animated here as well: the browser's own
- * smooth scrolling to an anchor fights the CSS snapping on phones.
+ * Clicks on links to a section are animated here as well.
  *
  * The scrolling is animated here (the browser's own is cancelled), easing
- * towards a target, with the CSS scroll snapping off meanwhile. Under
- * reduced motion the page jumps instead. Without JS, the native scrolling
- * and snapping take over.
+ * towards a target. Under reduced motion the page jumps instead. The CSS
+ * scroll snapping is turned off for good (.section-scroll on <html>, see
+ * _sass/panels.scss) and replaced by realigning on resize: Safari re-snaps
+ * to the last section it snapped to itself whenever the style or layout
+ * changes, which undid every scroll done here. Without JS, the native
+ * scrolling and snapping take over.
  * When an animation starts, a "section-scroll:start" event on document lets
  * the relief schedule its frames after this one's, to draw the new position.
  *
@@ -111,7 +113,6 @@ function mount(panels) {
         cancelAnimationFrame(frame);
         frame = 0;
         target = null;
-        root.style.scrollSnapType = "";
     }
 
     function step(now) {
@@ -134,11 +135,9 @@ function mount(panels) {
 
     function scrollTo(y) {
         if (reduced.matches) {
-            root.style.scrollSnapType = ""; // (a drag turned it off)
             window.scrollTo({ top: y, behavior: "instant" });
             return;
         }
-        root.style.scrollSnapType = "none";
         if (!frame) {
             pos = window.scrollY;
             applied = pos;
@@ -280,7 +279,6 @@ function mount(panels) {
             cancelAnimationFrame(frame);
             frame = 0;
             target = null;
-            root.style.scrollSnapType = "none";
             touch.dragging = true;
         }
         e.preventDefault();
@@ -360,6 +358,22 @@ function mount(panels) {
         }
         e.preventDefault();
     });
+
+    // What the snapping did on resize (window or phone rotated, footer
+    // reflowed): keep the page on a section.
+    window.addEventListener("resize", () => {
+        if (frame || touch) {
+            return;
+        }
+        const list = screens(panels);
+        const [lo, hi] = list[closest(list, window.scrollY)];
+        const y = Math.min(hi, Math.max(lo, window.scrollY));
+        if (Math.abs(y - window.scrollY) >= 1) {
+            window.scrollTo({ top: y, behavior: "instant" });
+        }
+    });
+
+    root.classList.add("section-scroll");
 }
 
 const footer = document.querySelector(".site-footer");
