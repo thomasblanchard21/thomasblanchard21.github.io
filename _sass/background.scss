@@ -5,12 +5,10 @@
  *
  * The background of the whole page is a static pale gradient; when the
  * header effect is on, assets/js/domain-warp-header.js draws a WebGL relief
- * into .relief-canvas behind the page, and fades it in (.is-ready) once the
- * first frame is rendered. The canvas scrolls with the page: it sits in
- * .relief-layer, which spans the page and clips it, is $relief-overscan of
- * the window taller above and below it, and the script moves it
- * (transform) to stay centered on the window. It shows across the hero, and around the
- * floors it sinks under the sections.
+ * into .relief-canvas, fixed behind the page, and fades it in (.is-ready)
+ * once the first frame is rendered. It shows behind the hero only: the rest
+ * of the page (.page-body: the sections and the footer) has a plain
+ * background and slides over it as the page scrolls.
  */
 
 body {
@@ -20,29 +18,16 @@ body {
         radial-gradient(ellipse at 80% 75%, $relief-fallback-dark 0%, transparent 65%),
         linear-gradient(160deg, $relief-fallback-light 0%, $relief-fallback-dark 100%);
     background-attachment: fixed;
-    position: relative;
-}
-
-.relief-layer {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    left: 0;
-    overflow: hidden;
-    pointer-events: none;
 }
 
 .relief-canvas {
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
-    // The large viewport height: stays put as a phone's address bar comes and goes.
-    height: calc(100vh * #{1 + 2 * $relief-overscan});
-    height: calc(100lvh * #{1 + 2 * $relief-overscan});
+    height: 100%;
     display: block;
-    will-change: transform;
+    pointer-events: none;
     opacity: 0;
     transition: opacity 0.8s ease;
     &.is-ready {
@@ -55,4 +40,8 @@ body {
 
 .wrapper {
     position: relative;
+}
+
+.page-body {
+    background-color: $page-background;
 }
