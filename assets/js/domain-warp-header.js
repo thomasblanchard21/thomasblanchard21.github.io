@@ -11,8 +11,8 @@
  *      https://iquilezles.org/articles/warp/), rendered into an RGBA8 texture
  *      with the height packed into two channels (16-bit precision). The
  *      texture has a margin around the visible area so shadows near the edges
- *      can still find their occluders. The canvas stays fixed, but the pattern
- *      is shifted by the page scroll, so the relief scrolls with the page.
+ *      can still find their occluders. The pattern is pinned to the page.
+ *      The canvas scrolls with the page (see "Scrolling" below).
  *      The mouse presses a smooth dip into the height there, so the
  *      layers around the cursor step down.
  *      Each section of the page sits on a flat floor sunk into the relief:
@@ -22,6 +22,13 @@
  *   2. Shade pass: the height is softly terraced into rounded layers, normals
  *      come from finite differences, a short march toward the light gives soft
  *      shadows, and a ring of samples gives a cavity/occlusion term.
+ *
+ * Scrolling: the canvas is part of the page (in .relief-layer, see
+ * _sass/background.scss), taller than the window by $relief-overscan above
+ * and below, so the browser scrolls it along with the text. A fixed canvas
+ * redrawn for each scroll position trailed the text on phones, where
+ * scrolling runs off the main thread. Each drawn frame recenters the canvas on
+ * the window, and the page moving near its edge draws one right away.
  *
  * Raw WebGL 1, no dependencies. Progressive enhancement: if anything is
  * missing (WebGL, a shader compile), the canvas stays transparent and the
@@ -159,7 +166,7 @@ uniform float uScroll;   // page scroll, in world units
 uniform vec3 uMouse;     // xy: cursor in world units (no seed), z: dip strength 0..1
 uniform float uHoverRadius;
 uniform float uHoverDepth;
-uniform vec4 uFloors[2]; // section floors in world units (no seed): xy min corner, zw max corner
+uniform vec4 uFloors[3]; // section floors in world units (no seed): xy min corner, zw max corner
 uniform float uFloorRadius;
 uniform float uFloorMargin;
 uniform float uFloorLevel;
@@ -232,7 +239,8 @@ void main() {
 
     // Sections: flat floors, without the dip, with the relief easing down around them.
     // The edge wanders with the warp field, so it follows the flow of the relief.
-    float d = min(roundedRect(pv, uFloors[0], uFloorRadius), roundedRect(pv, uFloors[1], uFloorRadius));
+    float d = min(roundedRect(pv, uFloors[0], uFloorRadius),
+                  min(roundedRect(pv, uFloors[1], uFloorRadius), roundedRect(pv, uFloors[2], uFloorRadius)));
     d += uFloorWave * r.x;
     float sink = 1.0 - smoothstep(0.0, uFloorMargin, d);
 
@@ -463,7 +471,7 @@ function createRenderer(canvas) {
     }
 
     // mouse, floors: in canvas-height units, origin bottom-left (see mount);
-    // floors.scroll: page scroll, in the same units.
+    // floors.scroll: page offset of the canvas, in the same units.
     function render(time, mouse, floors) {
         const texel = worldH / height;
         const look = currentLook();
@@ -558,17 +566,46 @@ function mount(canvas) {
     let quality = 0;
     let sampleCount = 0;
     let sampleTime = 0;
-    // Cursor position in canvas-height units, origin bottom-left (like gl_FragCoord).
-    const pointer = { x: 0, y: 0, inside: false };
+    // Cursor position in canvas-height units, origin bottom-left (like gl_FragCoord),
+    // from its position in the window (cx, cy, CSS px).
+    const pointer = { x: 0, y: 0, cx: 0, cy: 0, inside: false };
     const mouse = { x: 0, y: 0, strength: 0 };
     let lastMouseUpdate = 0;
-    // Floors under the (at most two) sections near the window, in the same
+    // Floors under the (at most three) sections near the canvas, in the same
     // units as the cursor: min x, min y, max x, max y each. Unused slots sit
     // far off-screen.
     const panels = Array.from(document.querySelectorAll(".content > section.panel"));
-    // Also the page scroll, which moves the relief along with the floors.
-    const floors = { rects: new Float32Array(8), radius: 0, margin: 0, wave: 0, scroll: 0 };
+    // Also the page offset of the canvas bottom, which pins the relief to the page.
+    const floors = { rects: new Float32Array(12), radius: 0, margin: 0, wave: 0, scroll: 0 };
     let stillFrame = 0;
+    // Offset of the canvas in its layer (CSS px), set by place().
+    const layer = canvas.parentElement;
+    let canvasTop = 0;
+
+    // Where the canvas should be: centered on the window, inside the page.
+    function wantedTop() {
+        const extra = Math.max(0, (canvas.offsetHeight - window.innerHeight) / 2);
+        const max = Math.max(0, layer.clientHeight - canvas.offsetHeight);
+        return Math.round(Math.min(max, Math.max(0, window.scrollY - extra)));
+    }
+
+    // The window has moved over half of the canvas's margin away from its center.
+    function offCenter() {
+        const extra = Math.max(0, (canvas.offsetHeight - window.innerHeight) / 2);
+        return Math.abs(wantedTop() - canvasTop) > extra / 2;
+    }
+
+    // Recenters the canvas; only right before drawing, since its old frame
+    // no longer matches it.
+    function place() {
+        const top = wantedTop();
+        if (top !== canvasTop) {
+            // The eased cursor dip stays where it is in the window.
+            mouse.y += (top - canvasTop) / (canvas.offsetHeight || 1);
+            canvasTop = top;
+            canvas.style.transform = "translateY(" + top + "px)";
+        }
+    }
 
     // Feature size relative to wide screens: smaller on narrow ones.
     function patternSize(width) {
@@ -592,18 +629,19 @@ function mount(canvas) {
         ];
     }
 
-    // Reads where the sections are and the page scroll; returns whether either moved.
+    // Reads where the sections and the canvas are; returns whether they moved
+    // relative to each other or the page.
     function updateFloors() {
         const rect = canvas.getBoundingClientRect();
         const unit = rect.height || 1;
-        const next = new Float32Array(8).fill(-100);
+        const next = new Float32Array(12).fill(-100);
         let slot = 0;
         // Gap between the sections and the sides of the window.
         let gap = Infinity;
         for (const panel of panels) {
             const r = panel.getBoundingClientRect();
             const reach = CONFIG.floorMargin + CONFIG.floorWave;
-            if (slot < 2 && r.bottom > rect.top - reach && r.top < rect.bottom + reach) {
+            if (slot < 3 && r.bottom > rect.top - reach && r.top < rect.bottom + reach) {
                 gap = Math.min(gap, r.left - rect.left, rect.right - r.right);
                 next.set([
                     (r.left - rect.left) / unit,
@@ -619,7 +657,9 @@ function mount(canvas) {
         const margin = Math.max(CONFIG.floorMarginMin, Math.min(CONFIG.floorMargin, CONFIG.floorMarginShare * gap));
         floors.margin = margin / unit;
         floors.wave = CONFIG.floorWave * (margin / CONFIG.floorMargin) / unit;
-        const scroll = window.scrollY / unit;
+        pointer.x = (pointer.cx - rect.left) / unit;
+        pointer.y = (rect.bottom - pointer.cy) / unit;
+        const scroll = (rect.bottom + window.scrollY) / unit;
         const moved = scroll !== floors.scroll || next.some((v, i) => v !== floors.rects[i]);
         floors.rects = next;
         floors.scroll = scroll;
@@ -643,6 +683,7 @@ function mount(canvas) {
     function drawStill() {
         pointer.inside = false;
         mouse.strength = 0;
+        place();
         updateFloors();
         draw(performance.now());
     }
@@ -698,9 +739,14 @@ function mount(canvas) {
             return;
         }
         const interval = now - lastDraw;
-        // While the page scrolls, every frame, so the relief and floors move with the text.
+        const due = interval >= 1000 / PERF.maxFps - 2;
+        // Each drawn frame recenters the canvas; scrolled near its edge, draw now.
+        if (due || offCenter()) {
+            place();
+        }
+        // The canvas scrolls with the page: a plain scroll needs no redraw.
         const moved = updateFloors();
-        if (moved || interval >= 1000 / PERF.maxFps - 2) {
+        if (moved || due) {
             lastDraw = now;
             // A long gap (first frame, hiccup) neither moves the clock much nor counts as slow.
             if (interval < 250) {
@@ -801,18 +847,17 @@ function mount(canvas) {
         if (e.pointerType === "touch") {
             return;
         }
-        const rect = canvas.getBoundingClientRect();
-        pointer.x = (e.clientX - rect.left) / rect.height;
-        pointer.y = (rect.bottom - e.clientY) / rect.height;
+        pointer.cx = e.clientX;
+        pointer.cy = e.clientY;
         pointer.inside = true;
     };
     const onPointerLeave = () => {
         pointer.inside = false;
     };
 
-    // Still frame: redrawn as the page scrolls, for the relief and floors to follow.
+    // Still frame: redrawn, recentered, once the page scrolls near the canvas edge.
     const onScroll = () => {
-        if (!renderer || frame || stillFrame || !isFrozen()) {
+        if (!renderer || frame || stillFrame || !isFrozen() || !offCenter()) {
             return;
         }
         stillFrame = requestAnimationFrame(() => {
