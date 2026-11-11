@@ -8,8 +8,8 @@
  * ending just left of the theme switch, where the sticky bar's links end too
  * (same height, same right edge, same spacing), so the bar
  * takes over in place once the hero scrolls away. Centered at phone width,
- * without JS (with JS, a menu button replaces them on small screens). It is a snap screen like the
- * section panels (see panels.scss and assets/js/section-scroll.js).
+ * without JS (with JS, a menu button replaces them on small screens). It is a
+ * screen of its own like the section panels (see panels.scss).
  *
  * The scroll hint at the bottom is a pointer shortcut (the nav holds the
  * same link for keyboard users); assets/js/scroll-hint.js shows it
@@ -23,7 +23,6 @@
     align-items: center;
     min-height: 100vh;
     min-height: 100svh;
-    scroll-snap-align: start;
     text-align: center;
 }
 

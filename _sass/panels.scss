@@ -9,26 +9,16 @@
  * WebGL), the text sits on the pale fallback background (see background.scss).
  *
  * One section per screen: each panel is centered in a grid row at least as
- * tall as the window, and the page snaps from one row to the next when
- * scrolled (CSS scroll snap, smooth under the sticky-bar.scss scroll-behavior;
- * assets/js/section-scroll.js replaces it with JS for the wheel, keyboard, touch and section links, so that the
- * edge of a section resists a gentle scroll). Each panel's scroll margins match its margins, so its snap area,
- * centered on the window, is the whole row. The hero (hero.scss) is a screen
- * of its own before them, and the footer is pulled up over the bottom of the last one
- * (--footer-height, measured by section-scroll.js). A section taller than
- * the window scrolls freely until its end.
+ * tall as the window. The page scrolls natively, without snapping; a link to
+ * a section brings its heading just below the sticky bar. The hero
+ * (hero.scss) is a screen of its own before them, and the footer is pulled up
+ * over the bottom of the last one (--footer-height, measured by
+ * assets/js/footer-height.js).
  */
 
 html {
-    scroll-snap-type: y mandatory;
-    // No pull-to-refresh or bounce past the ends (section-scroll.js also
-    // handles touch itself; this covers a zoomed-in page and no JS).
+    // No pull-to-refresh or bounce past the ends.
     overscroll-behavior-y: none;
-    // section-scroll.js does the snapping itself (Safari's own re-snapping
-    // would undo its scrolls).
-    &.section-scroll {
-        scroll-snap-type: none;
-    }
 }
 
 .content {
@@ -42,11 +32,12 @@ html {
 .panel {
     margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     padding: 10px $content-padding;
-    scroll-snap-align: center;
-    scroll-margin: $sticky-bar-height + $section-spacing 0 $section-spacing;
     &:last-child {
         margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
-        scroll-margin-bottom: calc(#{$section-spacing} + var(--footer-height, #{$footer-height}));
+    }
+    // Section links land with the heading clear of the sticky bar.
+    h2[id] {
+        scroll-margin-top: $sticky-bar-height + $section-spacing;
     }
 }
 
@@ -60,10 +51,11 @@ html {
     .panel {
         margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
         padding: 10px $content-padding-small;
-        scroll-margin: $sticky-bar-height-small + $section-spacing-small 0 $section-spacing-small;
         &:last-child {
             margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
-            scroll-margin-bottom: calc(#{$section-spacing-small} + var(--footer-height, #{$footer-height-small}));
+        }
+        h2[id] {
+            scroll-margin-top: $sticky-bar-height-small + $section-spacing-small;
         }
     }
 }
