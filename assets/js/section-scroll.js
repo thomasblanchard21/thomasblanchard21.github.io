@@ -16,10 +16,24 @@
  * stopping at its edge. The keys work whatever has focus, except in text
  * fields, and Space on a focused button (which presses it).
  *
+ * Touch is handled here too, not by the browser: native touch scrolling runs
+ * off the main thread, ahead of the relief canvas (domain-warp-header.js),
+ * which then trails the text. A vertical drag moves the page with the finger,
+ * and past a section edge at DRAG of its speed, showing the next section.
+ * On release, a drag past the edge by PULL of the window, or a flick towards
+ * it faster than FLICK, moves on to the next section; otherwise the page
+ * settles back (inside a tall section, a flick coasts on for COAST ms).
+ * This also stops the browser's pull-to-refresh. Sideways drags, pinches and
+ * a zoomed-in page are left to the browser.
+ * Clicks on links to a section are animated here as well: the browser's own
+ * smooth scrolling to an anchor fights the CSS snapping on phones.
+ *
  * The scrolling is animated here (the browser's own is cancelled), easing
  * towards a target, with the CSS scroll snapping off meanwhile. Under
- * reduced motion the page jumps instead. Touch scrolling keeps the native
- * snapping, and so does everything without JS.
+ * reduced motion the page jumps instead. Without JS, the native scrolling
+ * and snapping take over.
+ * When an animation starts, a "section-scroll:start" event on document lets
+ * the relief schedule its frames after this one's, to draw the new position.
  *
  * Also sets --footer-height on <html>, which the CSS uses to fit the footer
  * into the last screen.
@@ -32,6 +46,12 @@ const GLIDE = 90;       // ms, time constant of the scrolling animation
 const LINE = 40;        // px per line, for wheel events counted in lines
 const ARROW = 100;      // px per arrow key press inside a tall section
 const PAGE = 0.85;      // Page Up/Down and Space, as a fraction of the window height
+const DRAG = 0.4;       // past a section edge, the page follows the finger at this rate
+const PULL = 0.2;       // finger travel past the edge, as a fraction of the window height, that moves on
+const FLICK = 0.4;      // px/ms, a release at least this fast past the edge moves on
+const COAST = 300;      // ms of coasting after a flick inside a tall section
+const SAMPLE = 100;     // ms of the drag measured for the release speed
+const SLOP = 6;         // px of finger travel before a touch counts as a drag
 
 function measureFooter(footer) {
     const set = () => {
@@ -114,6 +134,7 @@ function mount(panels) {
 
     function scrollTo(y) {
         if (reduced.matches) {
+            root.style.scrollSnapType = ""; // (a drag turned it off)
             window.scrollTo({ top: y, behavior: "instant" });
             return;
         }
@@ -123,6 +144,7 @@ function mount(panels) {
             applied = pos;
             time = performance.now();
             frame = requestAnimationFrame(step);
+            document.dispatchEvent(new Event("section-scroll:start"));
         }
         target = y;
     }
@@ -172,6 +194,132 @@ function mount(panels) {
         e.preventDefault();
         push(e.deltaY * (e.deltaMode === 1 ? LINE : e.deltaMode === 2 ? window.innerHeight : 1), false);
     }, { passive: false });
+
+    // Touch: the current drag, null when there is none. raw is where the page
+    // would be without the resistance past the section edges.
+    let touch = null;
+
+    // Scroll position shown for a raw one, and back.
+    function resist(raw, lo, hi) {
+        return raw > hi ? hi + (raw - hi) * DRAG : raw < lo ? lo + (raw - lo) * DRAG : raw;
+    }
+
+    function unresist(y, lo, hi) {
+        return y > hi ? hi + (y - hi) / DRAG : y < lo ? lo + (y - lo) / DRAG : y;
+    }
+
+    function release() {
+        const t = touch;
+        touch = null;
+        if (!t || !t.dragging) {
+            return;
+        }
+        const [lo, hi] = t.list[t.index];
+        // Speed over the last SAMPLE ms, in px/ms (positive: down the page).
+        const last = t.samples[t.samples.length - 1];
+        const first = t.samples.find((s) => last[0] - s[0] <= SAMPLE) || last;
+        const speed = performance.now() - last[0] > SAMPLE || last === first
+            ? 0
+            : (last[1] - first[1]) / (last[0] - first[0]);
+        const past = t.raw > hi ? t.raw - hi : t.raw < lo ? t.raw - lo : 0;
+        const dir = Math.sign(past);
+        const next = t.list[t.index + dir];
+        pressure = 0;
+        if (dir && next && (Math.abs(past) > PULL * window.innerHeight || speed * dir > FLICK)) {
+            scrollTo(next[0]);
+        } else {
+            scrollTo(Math.min(hi, Math.max(lo, t.raw + speed * COAST)));
+        }
+    }
+
+    window.addEventListener("touchstart", (e) => {
+        const zoomed = window.visualViewport && window.visualViewport.scale > 1.01;
+        if (e.touches.length !== 1 || zoomed) {
+            release();
+            return;
+        }
+        const list = screens(panels);
+        const index = closest(list, target === null ? window.scrollY : target);
+        const finger = e.touches[0];
+        touch = {
+            id: finger.identifier,
+            x: finger.clientX,
+            y: finger.clientY,
+            list,
+            index,
+            start: unresist(window.scrollY, ...list[index]),
+            raw: 0,
+            dragging: false,
+            samples: [],
+        };
+    }, { passive: true });
+
+    window.addEventListener("touchmove", (e) => {
+        if (!touch) {
+            return;
+        }
+        const finger = Array.from(e.touches).find((f) => f.identifier === touch.id);
+        if (!finger || e.touches.length !== 1) {
+            release();
+            return;
+        }
+        const dx = finger.clientX - touch.x;
+        const dy = finger.clientY - touch.y;
+        if (!touch.dragging) {
+            if (Math.hypot(dx, dy) < SLOP) {
+                if (e.cancelable) {
+                    e.preventDefault(); // keep the browser from starting its own scroll
+                }
+                return;
+            }
+            if (Math.abs(dx) > Math.abs(dy) || !e.cancelable) {
+                touch = null; // sideways, or the browser already scrolls: its gesture
+                return;
+            }
+            // Catch the page if it was moving.
+            cancelAnimationFrame(frame);
+            frame = 0;
+            target = null;
+            root.style.scrollSnapType = "none";
+            touch.dragging = true;
+        }
+        e.preventDefault();
+        touch.raw = touch.start - dy;
+        touch.samples.push([performance.now(), touch.raw]);
+        if (touch.samples.length > 20) {
+            touch.samples.shift();
+        }
+        window.scrollTo({ top: resist(touch.raw, ...touch.list[touch.index]), behavior: "instant" });
+    }, { passive: false });
+
+    window.addEventListener("touchend", release);
+    window.addEventListener("touchcancel", release);
+
+    // Links to a section: animated like the rest, landing where the wheel would.
+    document.addEventListener("click", (e) => {
+        if (e.defaultPrevented || e.button !== 0 || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) {
+            return;
+        }
+        const link = e.target.closest("a[href*='#']");
+        if (!link || link.target) {
+            return;
+        }
+        const url = new URL(link.href);
+        if (url.origin !== location.origin || url.pathname !== location.pathname || url.hash.length < 2) {
+            return;
+        }
+        const el = document.getElementById(decodeURIComponent(url.hash.slice(1)));
+        const index = el ? panels.indexOf(el.closest(".hero, .panel")) : -1;
+        if (index < 0) {
+            return;
+        }
+        e.preventDefault();
+        if (location.hash !== url.hash) {
+            history.pushState(null, "", url.hash);
+        }
+        pressure = 0;
+        scrollTo(screens(panels)[index][0]);
+    });
 
     window.addEventListener("keydown", (e) => {
         if (e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey) {
