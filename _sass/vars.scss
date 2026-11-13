@@ -131,6 +131,26 @@ $section-spacing-small: 48px; // phone width: like the side gap below, so the re
 // enough for some of the relief to show beside them
 $panel-side-gap-small: 48px;
 
+// Projects carousel (see _sass/project-carousel.scss and
+// assets/js/project-carousel.js, which reads the sizes from the CSS)
+$carousel-bar-width: 100px;        // resting bar
+$carousel-bar-height: 340px;
+$carousel-hover-width: 200px;      // bar right under the mouse
+$carousel-hover-height: 400px;
+$carousel-open-width: 600px;       // opened card, narrower if the column is
+$carousel-open-height: 440px;
+$carousel-strip-width: 48px;       // the other bars while one is open
+$carousel-gap: 16px;
+$carousel-influence: 200px;        // how far from the mouse bars still grow
+$carousel-blur: 2px;               // on the other bars while one is open
+$carousel-radius: 12px;
+// Phone width: no hover there, bars open with a tap
+$carousel-bar-width-small: 64px;
+$carousel-bar-height-small: 300px;
+$carousel-open-height-small: 460px;
+$carousel-strip-width-small: 32px;
+$carousel-gap-small: 8px;
+
 /*
  * Build Variables, don't touch
  */

@@ -1,0 +1,209 @@
+@import "vars";
+
+/*
+ * Projects carousel
+ *
+ * The cards of _includes/project-carousel.html. Without JavaScript, a plain
+ * grid of cards: thumbnail, title, text. assets/js/project-carousel.js adds
+ * .is-magnetic: the cards become a row of tall bars that grow as the mouse
+ * comes near (macOS dock style), and a click or tap opens one into a large
+ * card (.is-open, the list gets .has-open) while the others shrink to blurred
+ * strips. The script sets each card's size in --w and --h, and reads the
+ * sizes below from the --carousel-* properties.
+ */
+
+.content .project-carousel {
+    list-style: none;
+    padding: 0;
+    margin: 24px 0 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.content .project-card {
+    position: relative;
+    margin: 0;
+    overflow: hidden;
+    border: 1px solid $border-color;
+    border-radius: $carousel-radius;
+    background-color: $surface;
+}
+
+.project-thumb {
+    aspect-ratio: 16 / 9;
+    // Placeholder stripes, under the thumbnail or instead of it
+    background: repeating-linear-gradient(
+        135deg,
+        $surface-alt 0 12px,
+        $page-background 12px 24px
+    );
+    img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+}
+
+.project-text {
+    padding: 12px 18px 4px;
+}
+
+.content .project-title {
+    margin: 0 0 6px;
+    font-size: 1.15em;
+}
+
+.project-body p {
+    margin: 0 0 12px;
+}
+
+// The title becomes a button (added by the script) that opens the card.
+.project-toggle {
+    font: inherit;
+    color: inherit;
+    letter-spacing: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    &:focus {
+        outline: none;
+    }
+}
+
+/*
+ * Magnetic row (with JavaScript)
+ */
+
+.content .project-carousel.is-magnetic {
+    --carousel-bar-width: #{$carousel-bar-width};
+    --carousel-bar-height: #{$carousel-bar-height};
+    --carousel-hover-width: #{$carousel-hover-width};
+    --carousel-hover-height: #{$carousel-hover-height};
+    --carousel-open-width: #{$carousel-open-width};
+    --carousel-open-height: #{$carousel-open-height};
+    --carousel-strip-width: #{$carousel-strip-width};
+    --carousel-gap: #{$carousel-gap};
+    --carousel-influence: #{$carousel-influence};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--carousel-gap);
+    // As tall as the opened card (keep it at least $carousel-hover-height), so the page doesn't move when one opens
+    height: $carousel-open-height;
+
+    .project-card {
+        flex: none;
+        width: var(--w, var(--carousel-bar-width));
+        height: var(--h, var(--carousel-bar-height));
+        cursor: pointer;
+        transition: filter 0.3s, opacity 0.3s;
+        &:focus-within {
+            outline: 2px solid $accent;
+            outline-offset: 2px;
+        }
+        // Title along the bar, read from the bottom up
+        &::after {
+            content: attr(data-title);
+            position: absolute;
+            left: 50%;
+            bottom: 12px;
+            transform: translateX(-50%) rotate(180deg);
+            writing-mode: vertical-rl;
+            max-height: calc(100% - 24px);
+            overflow: hidden;
+            padding: 8px 3px;
+            border-radius: 4px;
+            background-color: $surface;
+            color: $text-color;
+            font-family: $font-mono;
+            font-size: 13px;
+            line-height: 1.2;
+            white-space: nowrap;
+            transition: opacity 0.2s;
+        }
+    }
+
+    .project-thumb {
+        position: absolute;
+        inset: 0;
+        aspect-ratio: auto;
+    }
+
+    // The text: a panel along the bottom of the opened card
+    .project-text {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-height: 65%;
+        overflow-y: auto;
+        background-color: $surface;
+        border-top: 1px solid $border-color;
+        visibility: hidden;
+        opacity: 0;
+        transition: opacity 0.2s, visibility 0s 0.2s;
+    }
+    // Closed cards: the title stays in the page for screen readers and the
+    // keyboard, out of sight (the bar shows its own label).
+    .project-card:not(.is-open) .project-title {
+        visibility: visible;
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .project-card.is-open {
+        cursor: auto;
+        &::after {
+            opacity: 0;
+        }
+        .project-text {
+            visibility: visible;
+            opacity: 1;
+            transition: opacity 0.3s 0.2s, visibility 0s 0.2s;
+        }
+        .project-toggle {
+            cursor: pointer;
+        }
+    }
+
+    &.has-open .project-card:not(.is-open) {
+        filter: blur($carousel-blur);
+        opacity: 0.55;
+    }
+}
+
+@media (max-width: 500px) {
+    .content .project-carousel.is-magnetic {
+        --carousel-bar-width: #{$carousel-bar-width-small};
+        --carousel-bar-height: #{$carousel-bar-height-small};
+        --carousel-hover-width: #{$carousel-bar-width-small};
+        --carousel-hover-height: #{$carousel-bar-height-small};
+        --carousel-open-height: #{$carousel-open-height-small};
+        --carousel-strip-width: #{$carousel-strip-width-small};
+        --carousel-gap: #{$carousel-gap-small};
+        height: $carousel-open-height-small;
+        .project-text {
+            max-height: 75%;
+            padding: 10px 14px 2px;
+            font-size: 15px;
+        }
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .content .project-carousel.is-magnetic {
+        .project-card,
+        .project-card::after,
+        .project-text,
+        .project-card.is-open .project-text {
+            transition: none;
+        }
+    }
+}

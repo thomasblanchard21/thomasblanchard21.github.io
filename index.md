@@ -18,14 +18,7 @@ I'm a research scientist in Machine Learning, currently at SafranTech and INRAE 
 
 ## Projects {#projects}
 
-
-### sigma-SR
-
-In this project, I explore the use of symbolic regression for intrepretable uncertainty quantification (UQ) via Conformal Prediction. Article and results coming soon...
-
-### MotionDPO
-
-For my Master's Thesis, I worked on fine-tuning a 3D Human Pose Estimation model to enhance visual quality and aesthetic via Reinforcement Learning by Human Feedback (RLHF). I developed an online arena-like platform to collect pairwise preference, then optimized a model architecture via Direct Preference Optimization (DPO).  
+{% include project-carousel.html %}
 
 </section>
 

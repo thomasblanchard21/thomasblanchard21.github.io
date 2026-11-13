@@ -1,0 +1,30 @@
+{% comment %}
+    Projects as cards (data in _data/projects.yml).
+
+    Without JavaScript, a plain grid of cards. assets/js/project-carousel.js
+    turns it into a row of tall bars that grow as the mouse comes near
+    (macOS dock style), and a click or tap opens one bar into a large card
+    with the text (see _sass/project-carousel.scss).
+{% endcomment %}
+<ul class="project-carousel" markdown="0">
+    {% for project in site.data.projects %}
+        {% assign slug = project.title | slugify %}
+        <li class="project-card" data-project="{{ slug }}">
+            <div class="project-thumb">
+                {% if project.thumbnail %}
+                    <img src="{{ project.thumbnail | relative_url }}" alt="{{ project.alt | escape }}" loading="lazy">
+                {% endif %}
+            </div>
+            <div class="project-text">
+                <h3 class="project-title" id="project-{{ slug }}">{{ project.title }}</h3>
+                <div class="project-body" id="project-{{ slug }}-body">
+                    {{ project.summary | markdownify }}
+                    {% if project.link %}
+                        <p class="project-link"><a href="{{ project.link }}">More about {{ project.title }}</a></p>
+                    {% endif %}
+                </div>
+            </div>
+        </li>
+    {% endfor %}
+</ul>
+<script type="module" src="{{ "/assets/js/project-carousel.js" | relative_url }}"></script>

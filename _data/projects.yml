@@ -1,0 +1,32 @@
+# Projects shown as cards in the Projects section of index.md
+# (_includes/project-carousel.html, assets/js/project-carousel.js).
+#
+# Each entry:
+#   title:     shown on the card
+#   summary:   Markdown, shown when the card is opened
+#   thumbnail: optional image path, e.g. /assets/img/projects/sigma-sr.jpg
+#              (a striped placeholder is shown without one). Portrait or
+#              square images crop best: collapsed cards are tall and narrow,
+#              the opened card is wide.
+#   alt:       description of the thumbnail, for screen readers
+#   link:      optional URL (repo, paper, demo), shown on the opened card
+
+- title: "sigma-SR"
+  summary: >-
+    In this project, I explore the use of symbolic regression for interpretable
+    uncertainty quantification (UQ) via Conformal Prediction. Article and results
+    coming soon...
+  # TODO(thomas): thumbnail and alt text
+  thumbnail:
+  alt:
+
+- title: "MotionDPO"
+  summary: >-
+    For my Master's Thesis, I worked on fine-tuning a 3D Human Pose Estimation
+    model to enhance visual quality and aesthetic via Reinforcement Learning by
+    Human Feedback (RLHF). I developed an online arena-like platform to collect
+    pairwise preference, then optimized a model architecture via Direct
+    Preference Optimization (DPO).
+  # TODO(thomas): thumbnail and alt text
+  thumbnail:
+  alt:
