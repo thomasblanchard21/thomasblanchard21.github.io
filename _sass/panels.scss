@@ -9,8 +9,9 @@
  *
  * One section per screen: each panel fills a grid row at least as tall as
  * the window, its content centered in it (align-content; at the top in
- * browsers without it), and a separator line runs along the top of every
- * panel but the first (placeholder). The page scrolls natively, without snapping; a link to
+ * browsers without it). A panel with .panel-inverse (Projects) sits on a
+ * band of the dark palette, across the whole window, in both themes. The
+ * page scrolls natively, without snapping; a link to
  * a section brings its heading just below the sticky bar. The hero
  * (hero.scss) is a screen of its own before them, and the footer is pulled up
  * over the bottom of the last one (--footer-height, measured by
@@ -32,23 +33,32 @@ html {
 .panel {
     position: relative;
     align-content: center;
-    // Clear of the sticky bar at the top, and of the separators.
+    // Clear of the sticky bar at the top.
     padding: $sticky-bar-height + $section-spacing + 10px $content-padding $section-spacing + 10px;
     &:last-child {
         padding-bottom: calc(#{$section-spacing + 10px} + var(--footer-height, #{$footer-height}));
     }
-    // Separator between two sections, in line with the text.
-    & + &::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: $content-padding;
-        right: $content-padding;
-        border-top: $section-separator-width solid $section-separator-color;
-    }
     // Section links land with the heading clear of the sticky bar.
     h2[id] {
         scroll-margin-top: $sticky-bar-height + $section-spacing;
+    }
+}
+
+// The dark palette, on a band as wide as the window: the box-shadow paints
+// the band past the sides of the column, clip-path cuts it at the top and
+// bottom, and neither makes the page scroll sideways.
+.panel-inverse {
+    @each $name, $value in $theme-dark {
+        --#{$name}: #{$value};
+    }
+    --page: #{$inverse-background-light};
+    color-scheme: dark;
+    color: $text-color;
+    background-color: $page-background;
+    box-shadow: 0 0 0 100vmax $page-background;
+    clip-path: inset(0 -100vmax);
+    :root[data-theme="dark"] & {
+        --page: #{$inverse-background-dark};
     }
 }
 
@@ -63,10 +73,6 @@ html {
         padding: $sticky-bar-height-small + $section-spacing-small + 10px $content-padding-small $section-spacing-small + 10px;
         &:last-child {
             padding-bottom: calc(#{$section-spacing-small + 10px} + var(--footer-height, #{$footer-height-small}));
-        }
-        & + &::before {
-            left: $content-padding-small;
-            right: $content-padding-small;
         }
         h2[id] {
             scroll-margin-top: $sticky-bar-height-small + $section-spacing-small;
