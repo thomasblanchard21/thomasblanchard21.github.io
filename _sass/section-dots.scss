@@ -60,10 +60,15 @@ html {
             background-color: $section-dot-color;
         }
     }
-    // Over the inverted section (set by assets/js/sticky-nav.js)
+    // Over the inverted section (set by assets/js/sticky-nav.js): the other
+    // theme's colors
     &.is-inverse {
         --dot: #{map-get($theme-dark, dot)};
         --surface: #{map-get($theme-dark, surface)};
+        :root[data-theme="dark"] & {
+            --dot: #{map-get($theme-light, dot)};
+            --surface: #{map-get($theme-light, surface)};
+        }
     }
     @media (prefers-reduced-motion: reduce) {
         &,

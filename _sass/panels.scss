@@ -10,7 +10,8 @@
  * One section per screen: each panel fills a grid row at least as tall as
  * the window, its content centered in it (align-content; at the top in
  * browsers without it). A panel with .panel-inverse (Projects) sits on a
- * band of the dark palette, across the whole window, in both themes. The
+ * band of the other theme's palette (dark in the light theme, light in the
+ * dark theme), across the whole window. The
  * page scrolls natively, without snapping; a link to
  * a section brings its heading just below the sticky bar. The hero
  * (hero.scss) is a screen of its own before them, and the footer is pulled up
@@ -44,21 +45,23 @@ html {
     }
 }
 
-// The dark palette, on a band as wide as the window: the box-shadow paints
+// The other theme's palette, on a band as wide as the window: the box-shadow paints
 // the band past the sides of the column, clip-path cuts it at the top and
 // bottom, and neither makes the page scroll sideways.
 .panel-inverse {
     @each $name, $value in $theme-dark {
         --#{$name}: #{$value};
     }
-    --page: #{$inverse-background-light};
     color-scheme: dark;
     color: $text-color;
     background-color: $page-background;
     box-shadow: 0 0 0 100vmax $page-background;
     clip-path: inset(0 -100vmax);
     :root[data-theme="dark"] & {
-        --page: #{$inverse-background-dark};
+        @each $name, $value in $theme-light {
+            --#{$name}: #{$value};
+        }
+        color-scheme: light;
     }
 }
 

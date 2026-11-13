@@ -120,10 +120,6 @@ $section-dot-color: var(--dot);
 $section-dots-offset: 12px;   // gap between the dots and the window edge
 $section-dots-offset-small: 2px;
 // Gap around the section panels (one per screen, see _sass/panels.scss)
-// Background of the inverted section (Projects, .panel-inverse in
-// _sass/panels.scss), which takes the dark palette in both themes
-$inverse-background-light: #1c1b19;  // in the light theme: the dark page color
-$inverse-background-dark: #121110;   // in the dark theme: darker than the page
 $section-spacing: 40px;
 $section-spacing-small: 48px; // phone width: like the side gap below, so the relief shows between panels
 // Phone width: gap between the panels and the sides of the window, wide
