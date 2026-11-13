@@ -31,14 +31,6 @@ For my Master's Thesis, I worked on fine-tuning a 3D Human Pose Estimation model
 
 <section class="panel" markdown="1">
 
-## Research {#research}
-
-My research focuses on interpretability for prediction models via Symbolic Regression. I'm exploring hybridation with LLMs and how to guide the model towards physics-informed solutions.
-
-</section>
-
-<section class="panel" markdown="1">
-
 ## Publications {#publications}
 
 <!-- TODO(thomas): temporary layout filler, remove once the real publications are listed -->
