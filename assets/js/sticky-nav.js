@@ -13,11 +13,14 @@
  * to it rather than to the last link clicked. Not before the first scroll:
  * the browser may not have jumped to the URL's section yet.
  * Without JS the bar stays hidden, and the dots stay shown.
+ * Over a section on the inverted background (.panel-inverse, see
+ * _sass/panels.scss), the dots take its colors (.is-inverse).
  */
 
 function mount(bar, hero, dots) {
     // Section headings, in page order (ids set in index.md).
     const sections = Array.from(document.querySelectorAll(".content h2[id]"));
+    const inverse = Array.from(document.querySelectorAll(".panel-inverse"));
     const links = Array.from(document.querySelectorAll(
         ".sticky-bar-links a[href*='#'], .section-dots a[href*='#'], .site-menu a[href*='#']",
     )).filter((a) => {
@@ -65,6 +68,11 @@ function mount(bar, hero, dots) {
         const id = currentId();
         if (dots) {
             dots.classList.toggle("is-visible", id !== "top");
+            const line = window.innerHeight / 2;
+            dots.classList.toggle("is-inverse", inverse.some((panel) => {
+                const rect = panel.getBoundingClientRect();
+                return rect.top <= line && rect.bottom > line;
+            }));
         }
         if (scrolled) {
             syncHash(id);

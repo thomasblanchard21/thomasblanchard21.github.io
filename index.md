@@ -14,7 +14,7 @@ I'm a research scientist in Machine Learning, currently at SafranTech and INRAE 
 
 </section>
 
-<section class="panel" markdown="1">
+<section class="panel panel-inverse" markdown="1">
 
 ## Projects {#projects}
 
